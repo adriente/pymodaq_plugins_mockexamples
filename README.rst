@@ -1,40 +1,31 @@
-pymodaq_plugins_template
-########################
+pymodaq_plugins_mockexamples
+############################
 
 .. the following must be adapted to your developed package, links to pypi, github  description...
 
-.. image:: https://img.shields.io/pypi/v/pymodaq_plugins_template.svg
-   :target: https://pypi.org/project/pymodaq_plugins_template/
+.. image:: https://img.shields.io/pypi/v/pymodaq_plugins_mockexamples.svg
+   :target: https://pypi.org/project/pymodaq_plugins_mockexamples/
    :alt: Latest Version
 
 .. image:: https://readthedocs.org/projects/pymodaq/badge/?version=latest
    :target: https://pymodaq.readthedocs.io/en/stable/?badge=latest
    :alt: Documentation Status
 
-.. image:: https://github.com/PyMoDAQ/pymodaq_plugins_template/workflows/Upload%20Python%20Package/badge.svg
-   :target: https://github.com/PyMoDAQ/pymodaq_plugins_template
+.. image:: https://github.com/PyMoDAQ/pymodaq_plugins_mockexamples/workflows/Upload%20Python%20Package/badge.svg
+   :target: https://github.com/PyMoDAQ/pymodaq_plugins_mockexamples
    :alt: Publication Status
 
-.. image:: https://github.com/PyMoDAQ/pymodaq_plugins_template/actions/workflows/Test.yml/badge.svg
-    :target: https://github.com/PyMoDAQ/pymodaq_plugins_template/actions/workflows/Test.yml
+.. image:: https://github.com/PyMoDAQ/pymodaq_plugins_mockexamples/actions/workflows/Test.yml/badge.svg
+    :target: https://github.com/PyMoDAQ/pymodaq_plugins_mockexamples/actions/workflows/Test.yml
 
 
-Use this template to create a repository on your account and start the development of your own PyMoDAQ plugin!
-
+This PyMoDAQ plugin adds various Mock instruments to test PyMoDAQ functionalities
 
 Authors
 =======
 
-* First Author  (myemail@xxx.org)
-* Other author (myotheremail@xxx.org)
+* Sebastien J. Weber  (sebastien.weber@cnrs.fr)
 
-.. if needed use this field
-
-    Contributors
-    ============
-
-    * First Contributor
-    * Other Contributors
 
 .. if needed use this field
 
@@ -71,6 +62,12 @@ Viewer2D
 * **yyy**: control of yyy 2D detector
 * **xxx**: control of xxx 2D detector
 
+
+ViewerND
+++++++++
+
+* **MockEvents**: Simulate the acquisition of photons received on a timepix camera (position and time of arrival of each photon)
+* **xxx**: control of xxx 2D detector
 
 PID Models
 ==========
