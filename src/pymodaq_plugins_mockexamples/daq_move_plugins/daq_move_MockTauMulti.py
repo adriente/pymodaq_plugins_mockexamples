@@ -1,10 +1,7 @@
 from pymodaq.control_modules.move_utility_classes import DAQ_Move_base, comon_parameters_fun, main
 from pymodaq_plugins_mock.hardware.wrapper import ActuatorWrapperWithTauMultiAxes
 
-from pymodaq_plugins_mock import config
-
-if 'MockTauMulti' not in config('displayed', 'actuators'):
-    raise ValueError('Plugin configured to be not displayed')
+from pymodaq_plugins_mockexamples import config
 
 
 class DAQ_Move_MockTauMulti(DAQ_Move_base):

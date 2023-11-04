@@ -9,7 +9,7 @@ from pymodaq.utils.parameter import Parameter
 from pymodaq.utils.parameter.utils import iter_children
 
 
-from pymodaq_plugins_mock.hardware.camera_wrapper import Camera
+from pymodaq_plugins_mockexamples.hardware.camera_wrapper import Camera
 
 
 class DAQ_2DViewer_MockCamera(DAQ_Viewer_base):

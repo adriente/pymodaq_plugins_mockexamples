@@ -3,12 +3,9 @@ from pymodaq.control_modules.move_utility_classes import comon_parameters_fun  #
 
 from pymodaq.utils.daq_utils import ThreadCommand, getLineInfo  # object used to send info back to the main thread
 from easydict import EasyDict as edict  # type of dict
-from pymodaq_plugins_mock.hardware.camera_wrapper import Camera
+from ..hardware.camera_wrapper import Camera
 
-from pymodaq_plugins_mock import config
-
-if 'MockCamera' not in config('displayed', 'actuators'):
-    raise ValueError('Plugin configured to be not displayed')
+from pymodaq_plugins_mockexamples import config
 
 
 class DAQ_Move_MockCamera(DAQ_Move_base):
