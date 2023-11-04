@@ -22,7 +22,7 @@ class DAQ_Move_MockNamedAxes(DAQ_Move_base):
     _axis_names = dict(zip(['Xaxis', 'Yaxis', 'Zaxis'], MultiAxis.axes_indexes))
     _epsilon = 0.01
 
-    params = comon_parameters_fun(is_multiaxes, axis_names=_axis_names)
+    params = comon_parameters_fun(is_multiaxes, axes_names=_axis_names)
 
     def ini_attributes(self):
         self.controller: MultiAxis = None
