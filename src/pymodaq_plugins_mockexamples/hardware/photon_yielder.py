@@ -9,42 +9,46 @@ from pathlib import Path
 import numpy as np
 
 
-import numpy as np
-
 here = Path(__file__).parent.parent
 data_memory_map = np.load(here.joinpath('resources/KXe_000203_raw.npy'), mmap_mode='r')
 
 
-class Photon:
+class Photons:
 
     def __init__(self, photon_array: np.ndarray):
-        self.index = int(photon_array[0])
-        self.time_stamp = float(photon_array[4])
-        self.x_pos = int(photon_array[2])
-        self.y_pos = int(photon_array[3])
-        self.intensity = int(photon_array[5])
+        self.index = photon_array[:, 0]
+        self.time_stamp = photon_array[:, 4]
+        self.x_pos = photon_array[:, 2]
+        self.y_pos = photon_array[:, 3]
+        self.intensity = photon_array[:, 5]
+
+    def __len__(self):
+        return self.index.shape[0]
 
     def to_positions_intensity(self):
         return np.array([self.x_pos, self.y_pos, self.intensity])
 
     def __repr__(self):
-        return f'Photon event {self.index}: x:{self.x_pos}, y: {self.y_pos},' \
+        return f'Photon events {self.index}: x:{self.x_pos}, y: {self.y_pos},' \
                f' time: {self.time_stamp}, intensity: {self.intensity}'
 
 
 class PhotonYielder:
-    ind_grabed = -1
+    ind_grabbed = 0
 
     def __init__(self):
         self._photon_grabber = self._grabber()
 
     def _grabber(self):
-        while self.ind_grabed < data_memory_map.shape[0]:
-            self.ind_grabed += 1
-            yield data_memory_map[self.ind_grabed, ...]
+        while self.ind_grabbed < data_memory_map.shape[0]:
+            next_grab = np.random.randint(10, 200)
+            ind_grabbed = self.ind_grabbed
+            self.ind_grabbed += next_grab
+            print(self.ind_grabbed)
+            yield data_memory_map[ind_grabbed:ind_grabbed+next_grab, ...]
 
-    def grab(self) -> Photon:
-        return Photon(next(self._photon_grabber))
+    def grab(self) -> Photons:
+        return Photons(next(self._photon_grabber))
 
 
 if __name__ == '__main__':

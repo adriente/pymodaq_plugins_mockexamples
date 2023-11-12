@@ -12,9 +12,10 @@ from pymodaq.utils.data import DataFromPlugins, Axis, DataToExport, DataRaw, Dat
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, comon_parameters, main
 from pymodaq.utils.parameter import Parameter
 from pymodaq.utils.parameter.utils import iter_children
-from pymodaq_plugins_mockexamples.hardware.photon_yielder import PhotonYielder, Photon
+from pymodaq_plugins_mockexamples.hardware.photon_yielder import PhotonYielder, Photons
 from pymodaq.utils.h5modules.saving import H5Saver
-from pymodaq.utils.h5modules.data_saving import DataEnlargeableSaver, DataToExportEnlargeableSaver, DataLoader
+from pymodaq.utils.h5modules.data_saving import (DataEnlargeableSaver, DataToExportEnlargeableSaver, DataLoader,
+                                                 NodeError)
 
 lock = Lock()
 
@@ -37,10 +38,14 @@ class DAQ_NDViewer_MockEvents(DAQ_Viewer_base):
         {'title': 'Acqu. Time (s)', 'name': 'acqui_time', 'type': 'float', 'value': 10},
         {'title': 'Refresh Time (ms)', 'name': 'refresh_time', 'type': 'int', 'value': 500},
         {'title': 'Wait Time (ms)', 'name': 'wait_time', 'type': 'int', 'value': 1},
+        {'title': 'Show ND', 'name': 'show_nd', 'type': 'bool_push', 'value': False, 'label': 'Show ND'},
         {'title': 'Histogram:', 'name': 'histogram', 'type': 'group', 'children': [
             {'title': 'Apply weight?', 'name': 'apply_weight', 'type': 'bool', 'value': False},
             {'title': 'Time min (µs)', 'name': 'time_min', 'type': 'float', 'value': 0},
             {'title': 'Time max (µs)', 'name': 'time_max', 'type': 'float', 'value': 20},
+            {'title': 'N Bin Time', 'name': 'nbin_time', 'type': 'int', 'value': 256},
+            {'title': 'N Bin X', 'name': 'nbin_x', 'type': 'int', 'value': 256},
+            {'title': 'N Bin y', 'name': 'nbin_y', 'type': 'int', 'value': 256},
         ]},
     ]
 
@@ -74,6 +79,11 @@ class DAQ_NDViewer_MockEvents(DAQ_Viewer_base):
         # TODO for your custom plugin
         if param.name() in iter_children(self.settings.child('histogram'), []):
             self.process_events()
+        elif param.name() == 'show_nd':
+            if param.value():
+                self.show_nd()
+                param.setValue(False)
+
 
     def ini_detector(self, controller=None):
         """Detector communication initialization
@@ -117,19 +127,54 @@ class DAQ_NDViewer_MockEvents(DAQ_Viewer_base):
         self.timer.stop()
         print('acquisition is done')
 
-
     def process_events(self):
-        lock.acquire()
-        dwa = self._loader.load_data('/RawData/myphotons/Data0D/CH00/EnlData00', load_all=True)
-        lock.release()
-        time_of_flight, time_array = np.histogram(dwa.axes[0].get_data(), bins=256,
-                                                  range=(self.settings['histogram', 'time_min'] * 1e-6,
-                                                         self.settings['histogram', 'time_max'] * 1e-6),
-                                                  weights=dwa.data[0] if self.settings['histogram', 'apply_weight']
-                                                  else None)
-        print(f'Nphotons: {dwa.size}')
-        dwa_tof = DataCalculated('TOF', data=[time_of_flight],
-                                 axes=[Axis('Time', 's', time_array[:-1])])
+        try:
+            node = self._loader.get_node('/RawData/myphotons/DataND/CH00/EnlData00')
+            lock.acquire()
+            dwa = self._loader.load_data(node, load_all=True)
+            lock.release()
+            print(f'Nphotons: {dwa.size}')
+            dwa_tof = self.compute_histogram(dwa, '1D')
+            self.dte_signal_temp.emit(DataToExport('TOF', data=[dwa_tof]))
+        except NodeError:
+            pass
+
+    def compute_histogram(self, dwa: DataRaw, dim='1D'):
+        if dim == '1D':
+            time_of_flight, time_array = np.histogram(dwa.axes[0].get_data(),
+                                                      bins=self.settings['histogram', 'nbin_time'],
+                                                      range=(self.settings['histogram', 'time_min'] * 1e-6,
+                                                             self.settings['histogram', 'time_max'] * 1e-6),
+                                                      weights=dwa.data[0] if self.settings['histogram', 'apply_weight']
+                                                      else None)
+
+            dwa_tof = DataCalculated('TOF', data=[time_of_flight],
+                                     axes=[Axis('Time', 's', time_array[:-1])])
+
+        else:
+            data_array, edges = np.histogramdd(np.stack((dwa.axes[0].get_data(),
+                                                         np.squeeze(dwa[1].astype(int)),
+                                                         np.squeeze(dwa[2]).astype(int)), axis=1),
+                                               bins=(self.settings['histogram', 'nbin_time'],
+                                                     self.settings['histogram', 'nbin_x'],
+                                                     self.settings['histogram', 'nbin_y']),
+                                               range=((self.settings['histogram', 'time_min'] * 1e-6,
+                                                      self.settings['histogram', 'time_max'] * 1e-6),
+                                                      None,
+                                                      None)
+                                               )
+            dwa_tof = DataCalculated('TOF', data=[data_array],
+                                     axes=[Axis('Time', 's', edges[0][:-1], index=0),
+                                           Axis('X', 's', edges[1][:-1], index=1),
+                                           Axis('Y', 's', edges[2][:-1], index=2)],
+                                     nav_indexes=(1, 2))
+        return dwa_tof
+
+    def show_nd(self):
+        node = self._loader.get_node('/RawData/myphotons/DataND/CH00/EnlData00')
+        dwa = self._loader.load_data(node, load_all=True)
+
+        dwa_tof = self.compute_histogram(dwa, 'ND')
         self.dte_signal_temp.emit(DataToExport('TOF', data=[dwa_tof]))
 
     def close(self):
@@ -200,8 +245,8 @@ class PhotonCallback(QtCore.QObject):
     def grab(self, acquisition_time: float, wait_time: int):
         start_acqui = time.perf_counter()
         while (time.perf_counter() - start_acqui) <= acquisition_time:
-            photon: Photon = self.photon_grabber.grab()
-            self.event_queue.put(photon)
+            photons: Photons = self.photon_grabber.grab()
+            self.event_queue.put(photons)
             QtCore.QThread.msleep(wait_time)
         self.data_sig.emit()
 
@@ -214,17 +259,16 @@ class SaverCallback(QtCore.QObject):
 
     def work(self):
         while True:
-            photon: Photon = self.event_queue.get()
+            photons: Photons = self.event_queue.get()
             data = DataToExport('photons', data=[
-                DataRaw('time', data=[np.array([photon.intensity]),
-                                      np.array([photon.x_pos]),
-                                      np.array([photon.y_pos]),
-                                      ],
-                        labels=['intensity', 'x_pos', 'y_pos']
+                DataRaw('time', data=[photons.intensity, photons.x_pos, photons.y_pos],
+                        labels=['intensity', 'x_pos', 'y_pos'],
+                        nav_indexes=(0, ),
+                        axes=[Axis('timestamps', data=photons.time_stamp, index=0)]
                         )
             ])
             lock.acquire()
-            self.saver.add_data('/RawData/myphotons', axis_value=photon.time_stamp, data=data)
+            self.saver.add_data('/RawData/myphotons', axis_value=photons.time_stamp, data=data)
             lock.release()
             self.event_queue.task_done()
 
