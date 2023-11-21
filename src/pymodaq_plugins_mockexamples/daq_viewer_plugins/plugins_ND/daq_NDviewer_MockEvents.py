@@ -234,8 +234,8 @@ class DAQ_NDViewer_MockEvents(DAQ_Viewer_base):
                                                bins=(self.settings['histogram', 'nbin_time'],
                                                      self.settings['histogram', 'nbin_x'],
                                                      self.settings['histogram', 'nbin_y']),
-                                               range=((self.settings['histogram', 'time_min'] * 1e-6,
-                                                      self.settings['histogram', 'time_max'] * 1e-6),
+                                               range=((self.settings['histogram', 'time_min_tof'] * 1e-6,
+                                                      self.settings['histogram', 'time_max_tof'] * 1e-6),
                                                       (0, self.settings['histogram', 'nbin_x']),
                                                       (0, self.settings['histogram', 'nbin_y']))
                                                )
@@ -251,8 +251,8 @@ class DAQ_NDViewer_MockEvents(DAQ_Viewer_base):
         node = self._loader.get_node('/RawData/myphotons/DataND/CH00/EnlData00')
         dwa = self._loader.load_data(node, load_all=True)
 
-        dwa_tof = self.compute_histogram(dwa, 'ND')
-        self.dte_signal_temp.emit(DataToExport('TOF', data=[dwa_tof]))
+        dte_tof = self.compute_histogram(dwa, 'ND')
+        self.dte_signal_temp.emit(dte_tof)
 
     def close(self):
         """Terminate the communication protocol"""
