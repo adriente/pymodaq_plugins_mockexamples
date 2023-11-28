@@ -180,17 +180,23 @@ class DAQ_NDViewer_MockEvents(DAQ_Viewer_base):
 
     def emit_data(self):
         self.timer.stop()
-        print('acquisition is done')
+        self.process_events(emit_temp=False)
 
-    def process_events(self):
+    def process_events(self, emit_temp=True):
         try:
             node = self._loader.get_node('/RawData/myphotons/DataND/CH00/EnlData00')
             lock.acquire()
             dwa = self._loader.load_data(node, load_all=True)
+            dwa = dwa.sort_data(0)
             lock.release()
             print(f'Nphotons: {dwa.size}')
             dte = self.compute_histogram(dwa, '1D')
-            self.dte_signal_temp.emit(dte)
+            if emit_temp:
+                self.dte_signal_temp.emit(dte)
+            else:
+                dwa.add_extra_attribute(save=True, plot=False)
+                dte.append(dwa)
+                self.dte_signal.emit(dte)
         except NodeError:
             pass
 
@@ -204,23 +210,24 @@ class DAQ_NDViewer_MockEvents(DAQ_Viewer_base):
                                                      range=((0, self.settings['histogram', 'nbin_x']),
                                                             (0, self.settings['histogram', 'nbin_y'])),
                                                      )
-        dwa_image = DataCalculated(name, data=[pos_array],
-                                   axes=[Axis('X', 'pxl', x_edges[:-1], index=0),
-                                         Axis('Y', 'pxl', y_edges[:-1], index=1)])
+        dwa_image = DataFromPlugins(name, data=[pos_array],
+                                    axes=[Axis('X', 'pxl', x_edges[:-1], index=0),
+                                          Axis('Y', 'pxl', y_edges[:-1], index=1)],
+                                    save=False, plot=True)
         return dwa_image
 
     def compute_histogram(self, dwa: DataRaw, dim='1D') -> DataToExport:
         dte = DataToExport('Histograms', )
         if dim == '1D':
-            dwa = dwa.sort_data(0)
             time_of_flight, time_array = np.histogram(dwa.axes[0].get_data(),
                                                       bins=self.settings['histogram', 'nbin_time'],
                                                       range=(self.settings['histogram', 'time_min_tof'] * 1e-6,
                                                              self.settings['histogram', 'time_max_tof'] * 1e-6),
                                                       weights=dwa.data[0] if self.settings['histogram', 'apply_weight']
                                                       else None)
-            dte.append(DataCalculated('TOF', data=[time_of_flight],
-                                      axes=[Axis('Time', 's', time_array[:-1])]))
+            dte.append(DataFromPlugins('TOF', data=[time_of_flight],
+                                       axes=[Axis('Time', 's', time_array[:-1])],
+                                       save=False, plot=True))
 
             for image_settings in self.settings.child('images_settings').children():
                 dte.append(self.compute_image_histogram(dwa, image_settings['name'],
@@ -243,7 +250,7 @@ class DAQ_NDViewer_MockEvents(DAQ_Viewer_base):
                                      axes=[Axis('Time', 's', edges[0][:-1], index=0),
                                            Axis('X', 's', edges[1][:-1], index=1),
                                            Axis('Y', 's', edges[2][:-1], index=2)],
-                                     nav_indexes=(1, 2))
+                                     nav_indexes=(1, 2), save=False, plot=True)
             dte.append(dwa_tof)
         return dte
 
@@ -348,7 +355,9 @@ class SaverCallback(QtCore.QObject):
                 DataRaw('time', data=[photons.intensity, photons.x_pos, photons.y_pos],
                         labels=['intensity', 'x_pos', 'y_pos'],
                         nav_indexes=(0, ),
-                        axes=[Axis('timestamps', data=photons.time_stamp, index=0)]
+                        axes=[Axis('timestamps', data=photons.time_stamp, index=0)],
+                        plot=False,
+                        save=True
                         )
             ])
             lock.acquire()

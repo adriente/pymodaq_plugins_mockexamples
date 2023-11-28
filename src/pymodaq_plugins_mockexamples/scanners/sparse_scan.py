@@ -14,11 +14,12 @@ from pymodaq.utils.scanner.scan_factory import ScannerFactory
 from pymodaq.utils.scanner.scanners._1d_scanners import Scan1DBase, DataDistribution
 
 
-@ScannerFactory.register('Scan1D', 'Sparse')
 class Scan1DSparse(Scan1DBase): #Matlab syntax class for easy scan creation
     ''' Syntax goes as start:step:stop, such as 0:0.2:1 will give [0 0.2 0.4 0.6 0.8 1] or single entry 0 will give 0
       Separate entries with comma or new line, such 0:0.2:1,5 will give [0 0.2 0.4 0.6 0.8 1 5]
     '''
+    scan_type = 'Scan1D'
+    scan_subtype = 'SparseExample'
     params = [
         {'title': 'Parsed string:', 'name': 'parsed_string', 'type': 'str', 'value': '0:0.1:1', }
         ]
