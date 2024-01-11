@@ -219,7 +219,7 @@ class DAQ_NDViewer_MockEvents(DAQ_Viewer_base):
     def compute_histogram(self, dwa: DataRaw, dim='1D') -> DataToExport:
         dte = DataToExport('Histograms', )
         if dim == '1D':
-            time_of_flight, time_array = np.histogram(dwa.axes[0].get_data(),
+            time_of_flight, time_array = np.histogram(dwa.axes[0].get_data_0D(),
                                                       bins=self.settings['histogram', 'nbin_time'],
                                                       range=(self.settings['histogram', 'time_min_tof'] * 1e-6,
                                                              self.settings['histogram', 'time_max_tof'] * 1e-6),
@@ -235,7 +235,7 @@ class DAQ_NDViewer_MockEvents(DAQ_Viewer_base):
                                                         image_settings['time_max'] * 1e-6))
 
         else:
-            data_array, edges = np.histogramdd(np.stack((dwa.axes[0].get_data(),
+            data_array, edges = np.histogramdd(np.stack((dwa.axes[0].get_data_0D(),
                                                          np.squeeze(dwa[1].astype(int)),
                                                          np.squeeze(dwa[2]).astype(int)), axis=1),
                                                bins=(self.settings['histogram', 'nbin_time'],
