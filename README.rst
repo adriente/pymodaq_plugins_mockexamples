@@ -40,34 +40,45 @@ Below is the list of instruments included in this plugin
 Actuators
 +++++++++
 
-* **yyy**: control of yyy actuators
-* **xxx**: control of xxx actuators
+* **MockCamera**: set of X, Y or theta actuators moving a light image on the corresponding camera instrument
+  For this to work, MockCamera actuators and detector should share the same control ID with the preset scan
+* **MockNamedAxes**: Show examples of multi axis actuator controller specifying both a name and an integer ID
+* **MockRandom** actuator to be used with the corresponding 0D detector. If they share the same ID in the preset then
+  this actuator can be moved in the [0-20] range (even randomly) to retrieve a noisy gaussian
+* **MockTauMulti**: controller with multiple axes and showing how to add a characteristic time (to mimic real
+  instruments)
 
 Viewer0D
 ++++++++
 
-* **yyy**: control of yyy 0D detector
-* **xxx**: control of xxx 0D detector
+* **MockAdaptive**: to be used to show how a detector can be used for adaptive samplking (not working yet with PyMoDAQ4)
+* **MockRandom**: generate a value of a noisy gaussian given the current value of the underlying mock controller.
+  To be used with the MockRandom actuator. If they share the same ID in the preset then this actuator can be moved in
+  the [0-20] range (even randomly) to retrieve a noisy gaussian
 
 Viewer1D
 ++++++++
 
-* **yyy**: control of yyy 1D detector
-* **xxx**: control of xxx 1D detector
+* **MockSpectro**: mimic data one coulf obtain from a spectrometer. Specific methods are also added to seemlessly use
+  this detector with the Spectrometer extension (not yet working with PyMoDAQ4)
+* **MockRandom**: Generate a noisy Gaussian with a spread axis (to illustrate the sorting button action of the Viewer1D
+  data viewer
 
 
 Viewer2D
 ++++++++
 
-* **yyy**: control of yyy 2D detector
-* **xxx**: control of xxx 2D detector
+* **MockCamera**: if connected with a preset with the MockCamera actuator (or a few of them, X, Y and thera), then the
+  image displayed on screen is moved or rotated accordingly to the actuators value. Perfect for a beamsteering example
+* **RoiStuff**: example of ROI exporting into the instrument plugin. Not yet working, planned to be ok for the future
+  > 4.2.* releases.
 
 
 ViewerND
 ++++++++
 
 * **MockEvents**: Simulate the acquisition of photons received on a timepix camera (position and time of arrival of each photon)
-* **xxx**: control of xxx 2D detector
+
 
 PID Models
 ==========
@@ -80,6 +91,5 @@ Extensions
 Installation instructions
 =========================
 
-* PyMoDAQ’s version.
-* Operating system’s version.
-* What manufacturer’s drivers should be installed to make this plugin run?
+* PyMoDAQ >= 4 (except for some of them, specified in this README)
+* nothing in particular to be installed, they are all virtual instruments
