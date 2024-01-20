@@ -53,7 +53,7 @@ class DAQ_0DViewer_MockRandom(DAQ_Viewer_base):
             others optionals arguments
         """
         data = DataFromPlugins(name='RandomData', data=[np.array([self.controller.get_data_0D()])])
-
+        QThread.msleep(500)
         self.dte_signal.emit(DataToExport('Random', data=[data]))
 
     def stop(self):
