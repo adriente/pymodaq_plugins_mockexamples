@@ -7,8 +7,8 @@ class RandomWrapper:
 
     Nx = 256
     amp = 20
-    x0 = 10
-    dx = 5
+    x0 = 128
+    dx = 20
     n = 2
 
     def __init__(self):
