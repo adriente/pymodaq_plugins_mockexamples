@@ -7,6 +7,8 @@ from pymodaq.utils.parameter import Parameter
 from pymodaq_plugins_mockexamples.hardware.pinem_simulator import PinemGenerator
 from pymodaq_plugins_mockexamples.daq_viewer_plugins.plugins_1D.daq_1Dviewer_Pinem import DAQ_1DViewer_Pinem
 
+from pymodaq_plugins_mockexamples.hardware.pinem_analysis import PinemAnalysis
+
 class DAQ_1DViewer_PinemAnalysis(DAQ_1DViewer_Pinem):
     """ Instrument plugin class for a 1D viewer.
     
@@ -34,16 +36,18 @@ class DAQ_1DViewer_PinemAnalysis(DAQ_1DViewer_Pinem):
         """
         data_array = self.controller.gen_data()
         axis = Axis('energy', data=self.controller.x)
+        pinem_model = PinemAnalysis('/home/adrien/git/pinemfit/notebooks/night_model.hdf5')
 
-        g1, g2, theta = self.my_pinem_algo(data_array)
+        omg, g, offset, fwhm = pinem_model.predict(data_array)
 
         self.dte_signal.emit(DataToExport('Pinem',
                                   data=[
                                         DataFromPlugins(name='Constants',
-                                                        data=[np.array([self.controller.g1]),
-                                                              np.array([self.controller.g2]),
-                                                              np.array([self.controller.theta])],
-                                                        dim='Data0D', labels=['g1', 'g2', 'theta']),
+                                                        data=[np.array([self.controller.g]),
+                                                              np.array([self.controller.offset]),
+                                                              np.array([g]),
+                                                              np.array([offset])],
+                                                        dim='Data0D', labels=['true g', 'true_offset', 'g pred', 'offset pred']),
                                       DataFromPlugins(name='Spectrum', data=[data_array],
                                                       dim='Data1D', labels=['Spectrum'],
                                                       axes=[axis]),
