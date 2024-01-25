@@ -63,6 +63,9 @@ Viewer1D
   this detector with the Spectrometer extension (not yet working with PyMoDAQ4)
 * **MockRandom**: Generate a noisy Gaussian with a spread axis (to illustrate the sorting button action of the Viewer1D
   data viewer
+* **Pinem**: Generate Photon-Induced Near-field Electron Microscopy spectra. It is Electron energy loss spectroscopy
+  from the interaction of a near-field (could be induced by a laser on a sample) and probed by the electronic beam.
+  The coupling between the near-field and the electronic beam can be tuned using various parameters (g1, g2, theta)...
 
 
 Viewer2D
