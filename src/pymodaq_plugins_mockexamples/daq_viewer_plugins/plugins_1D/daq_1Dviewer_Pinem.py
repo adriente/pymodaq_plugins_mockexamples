@@ -81,15 +81,14 @@ class DAQ_1DViewer_Pinem(DAQ_Viewer_base):
         data_array = self.controller.gen_data()
         axis = Axis('energy', data=self.controller.x)
         self.dte_signal.emit(DataToExport('Pinem',
-                                  data=[
+                                  data=[DataFromPlugins(name='Spectrum', data=[data_array],
+                                                        dim='Data1D', labels=['Spectrum'],
+                                                        axes=[axis]),
                                         DataFromPlugins(name='Constants',
                                                         data=[np.array([self.controller.g1]),
                                                               np.array([self.controller.g2]),
                                                               np.array([self.controller.theta])],
-                                                        dim='Data0D', labels=['g1', 'g2', 'theta']),
-                                      DataFromPlugins(name='Spectrum', data=[data_array],
-                                                      dim='Data1D', labels=['Spectrum'],
-                                                      axes=[axis]),
+                                                        dim='Data0D', labels=['g1', 'g2', 'theta'])
                                         ]))
 
     def stop(self):
