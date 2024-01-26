@@ -7,6 +7,7 @@ from typing import Type
 import logging
 from pathlib import Path
 import pytorch_lightning as pl
+import torch
 
 def evaluate_model(model, input):
     # assert input.shape[-1] == model.net.nf
@@ -15,6 +16,10 @@ def evaluate_model(model, input):
     if input.shape[-2] != 1:
         input = np.expand_dims(input, axis=-2)
     assert len(input.shape) <= 3
+
+    torch_input = torch.tensor(input, dtype=torch.float32).to(model.device)
+
+    return model(torch_input).detach().cpu().numpy()
 
 
 def load_model(type: Type[pl.LightningModule], path: Path, **kwargs):
