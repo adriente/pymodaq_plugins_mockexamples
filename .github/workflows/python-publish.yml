@@ -33,13 +33,11 @@ jobs:
         path: dist/
 
   get_name:
-    name: >-
-      Publish Python 🐍 distribution 📦 to PyPI
     runs-on: ubuntu-latest
     steps:
       - name: Get repository name
         id: repo-name
-        uses: MariachiBear/get-repo-name-action@v1.1.0
+        uses: MariachiBear/get-repo-name-action@v1.2.0
         with:
           with-owner: 'false'
           string-case: 'lowercase'
