@@ -54,7 +54,7 @@ jobs:
     - get_name
     runs-on: ubuntu-latest
     env:
-      REPO_NAME: https://pypi.org/p/${{ steps.repo-name.outputs.repository-name }}
+      REPO_NAME: https://pypi.org/p/${{ needs.get_name.steps.repo-name.outputs.repository-name }}
     environment:
       name: pypi
       url: $REPO_NAME  # Replace <package-name> with your PyPI project name
