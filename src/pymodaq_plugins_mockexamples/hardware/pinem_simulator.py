@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.special import jv, voigt_profile
-import time
 
 # We use this implementation so that the shape is not always the same at the cost of some accuracy on fwhm
 def voigt_fwhm(x, fwhm, seed = 0) : 
@@ -24,7 +23,7 @@ def g_distrib_temp_averaged(g,g0,ratio):
 
 
 class Pinem:
-    def __init__(self, x, amplitude,n_cutoff, kernel = None, rt = 0.7):
+    def __init__(self, x, amplitude,n_cutoff, kernel = None):
         """
         x: 1D array of energy values in eV
         kernel: 1D array of the zero-loss peak in the same energy units as x and same length as x
@@ -35,7 +34,6 @@ class Pinem:
         n_cutoff: int describing the number of subbands to consider
         """
         self.x = x
-        self.rt = rt
         self.delta_g = np.linspace(0.0001,1.0-0.0001,1000)
         self.num_g = self.delta_g.shape[0]
         self.amplitude = amplitude
@@ -67,7 +65,7 @@ class Pinem:
         t = np.array([np.roll(kernels[:,i], mus[mask_mus][i]) for i in range(len(mus[mask_mus]))])
         return t, mask_mus
 
-    def calc(self, omega,g,offset=0.0,fwhm = 0.3, seed = 0):
+    def calc(self, omega,g,offset=0.0,fwhm = 0.3, rt = 0.7, background = 0.0, seed = 0):
         # mod = np.abs(omega2/omega1 - round_ratio)
         # if mod > self.interference_cutoff:
         #     n_kern_mat, mask_n = self.gen_kernel_mattrix(omega1, ks = False, fwhm = fwhm, seed = seed)
@@ -77,18 +75,19 @@ class Pinem:
         #     wave =self.amplitude*( j2.sum(axis = 0) + j1.sum(axis = 0))
         #     self.kernel_matrix = n_kern_mat
         # else : 
+        bkgd_array = np.random.rand(self.x.shape[0])*background
         vg1 = np.tile((g*self.delta_g)[:,np.newaxis],self.ns.shape[0]).T
-        g_dist = g_distrib_temp_averaged(vg1, g, self.rt)
+        g_dist = g_distrib_temp_averaged(vg1, g, rt)
         kern_mat, mask_n = self.gen_kernel_mattrix(omega, offset=offset, fwhm = fwhm, seed = seed)
         j = jv(self.ns, 2*vg1)
         js = np.sum((g_dist*j**2)[mask_n,:],axis = 1)[:,np.newaxis]
-        wave = self.amplitude*np.sum(kern_mat*js, axis=0)
+        wave = self.amplitude*np.sum(kern_mat*js, axis=0) + bkgd_array
         self.kernel_matrix = kern_mat
 
         return wave
     
-    def calc_sq_modulus(self, omega, g, offset = 0.0,fwhm = 0.3, seed = 0):
-        wave = self.calc(omega,g, offset = offset,fwhm = fwhm, seed = seed)
+    def calc_sq_modulus(self, omega, g, offset = 0.0,fwhm = 0.3, rt = 0.7, background = 0.0, seed = 0):
+        wave = self.calc(omega,g, offset = offset,fwhm = fwhm, rt = rt, background=background, seed = seed)
         return np.real(wave)**2 + np.imag(wave)**2
     
         # omgs = omega1* self.mns + omega2*self.mks
@@ -106,7 +105,7 @@ class PinemGenerator():
     ):
         self.n = n
 
-        self._rt = rt
+        self._rt = None
         self.x = np.linspace(-n/2*scale, n/2*scale, n)
         self.kernel = kernel
         self.n_cutoff = n_cutoff
@@ -130,7 +129,10 @@ class PinemGenerator():
 
     @property
     def rt(self) :
-        return self._rt
+        if self._rt is None :
+            return np.random.uniform(0.1, 7.0)
+        else :
+            return self._rt
     
     @rt.setter
     def rt(self, value) : 

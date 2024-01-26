@@ -9,6 +9,13 @@ from pymodaq_plugins_mockexamples.daq_viewer_plugins.plugins_1D.daq_1Dviewer_Pin
 
 from pymodaq_plugins_mockexamples.hardware.pinem_analysis import PinemAnalysis
 
+import os
+
+file_path = os.path.dirname(os.path.abspath(__file__))
+
+
+
+
 class DAQ_1DViewer_PinemAnalysis(DAQ_1DViewer_Pinem):
     """ Instrument plugin class for a 1D viewer.
     
@@ -36,18 +43,18 @@ class DAQ_1DViewer_PinemAnalysis(DAQ_1DViewer_Pinem):
         """
         data_array = self.controller.gen_data()
         axis = Axis('energy', data=self.controller.x)
-        pinem_model = PinemAnalysis('/home/adrien/git/pinemfit/notebooks/night_model.hdf5')
+        pinem_model = PinemAnalysis(file_path + '/last.ckpt')
 
-        omg, g, offset, fwhm = pinem_model.predict(data_array)
+        g, rt = pinem_model.predict(data_array)
 
         self.dte_signal.emit(DataToExport('Pinem',
                                   data=[
                                         DataFromPlugins(name='Constants',
                                                         data=[np.array([self.controller.g]),
-                                                              np.array([self.controller.offset]),
+                                                              np.array([self.controller.rt]),
                                                               np.array([g]),
-                                                              np.array([offset])],
-                                                        dim='Data0D', labels=['true g', 'true_offset', 'g pred', 'offset pred']),
+                                                              np.array([rt])],
+                                                        dim='Data0D', labels=['true g', 'true_rt', 'g pred', 'rt pred']),
                                       DataFromPlugins(name='Spectrum', data=[data_array],
                                                       dim='Data1D', labels=['Spectrum'],
                                                       axes=[axis]),
