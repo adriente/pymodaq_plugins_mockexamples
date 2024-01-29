@@ -71,7 +71,7 @@ Viewer2D
 * **MockCamera**: if connected with a preset with the MockCamera actuator (or a few of them, X, Y and thera), then the
   image displayed on screen is moved or rotated accordingly to the actuators value. Perfect for a beamsteering example
 * **RoiStuff**: example of ROI exporting into the instrument plugin. Not yet working, planned to be ok for the future
-  > 4.2.* releases.
+  >= 4.2.* releases.
 
 
 ViewerND
