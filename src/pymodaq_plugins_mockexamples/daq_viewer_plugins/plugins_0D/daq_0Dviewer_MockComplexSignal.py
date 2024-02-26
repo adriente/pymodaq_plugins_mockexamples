@@ -39,6 +39,8 @@ class DAQ_0DViewer_MockComplexSignal(DAQ_Viewer_base):
 
     def ini_detector(self, controller=None):
         self.ini_detector_init(controller, DataSignal())
+        if self.settings['controller_status'] == "Master":
+            self.controller.ini_random_structures()
         self.emit_status(ThreadCommand('update_main_settings',
                                        [['wait_time'], self.settings['wait_time'], 'value']))
 

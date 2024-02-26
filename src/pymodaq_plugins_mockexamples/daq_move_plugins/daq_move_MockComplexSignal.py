@@ -61,6 +61,8 @@ class DAQ_Move_MockComplexSignal(DAQ_Move_base):
              daq_utils.ThreadCommand
         """
         self.ini_stage_init(controller, DataSignal())
+        if self.settings['multiaxes', 'multi_status'] == "Master":
+            self.controller.ini_random_structures()
         info = "Mock MultiAxis"
         initialized = True
         return info, initialized

@@ -93,7 +93,7 @@ class DataSignal:
     def set_value(self, axis: int = 0, value: float = 0.):
         self._current_value[self.axes_indexes.index(axis)] = value
 
-    def generate_data(self, x, y=None):
+    def generate_data(self, x, y=0):
         if self.signal_type == 'Gaussian':
             return self.random_hypergaussians2D_signal((x, y))
         elif self.signal_type == 'Lorentzian':
