@@ -20,7 +20,7 @@ with Image.open(str(here.parent.joinpath('hardware', 'CNRS_degrade.png'))) as im
 
 class DataSignal:
 
-    signal_types = ['Gaussian', 'Lorentzian', 'CNRS']
+    signal_types = ['Lorentzian', 'Gaussian', 'CNRS']
     axes_indexes = [0, 1]
     Nstruct = 5
 
@@ -28,8 +28,8 @@ class DataSignal:
         super().__init__()
 
         self._data = None
-        self._current_value = [0., None]
-        self.signal_type = 'Gaussian'
+        self._current_value = [0., 0.]
+        self.signal_type = self.signal_types[0]
 
     def ini_random_structures(self):
         xlim = [-5, 5]
@@ -68,6 +68,12 @@ class DataSignal:
                            Axis('Yaxis', data=y, index=0)]
                        )
 
+    def get_data_grid(self):
+        if self.signal_type == 'Gaussian':
+            return self.get_random_hypergaussian_datagrid()
+        elif self.signal_type == 'Lorentzian':
+            return self.get_random_lorentzian_1D()
+
     def random_hypergaussians2D_signal(self, xy, coeff=1.0):
         return self.random_hypergaussians2D(xy, coeff)[0, 0]
 
@@ -79,7 +85,7 @@ class DataSignal:
         return signal
 
     def get_random_lorentzian_1D(self) -> DataRaw:
-        x = np.linspace(-5, 5, 251)
+        x = np.linspace(-5, 5, 401)
         return DataRaw('Random Lorentian', data=[
             self.diverging1D(x)],
                        axes=[
