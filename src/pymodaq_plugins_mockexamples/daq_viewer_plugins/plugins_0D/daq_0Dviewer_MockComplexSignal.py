@@ -23,6 +23,7 @@ class DAQ_0DViewer_MockComplexSignal(DAQ_Viewer_base):
     params = comon_parameters + [
         {'title': 'Signal type', 'name': 'signal_type', 'type': 'list', 'limits': DataSignal.signal_types},
         {'title': 'refresh structures', 'name': 'refresh', 'type': 'bool_push', 'label': 'Refresh'},
+        {'title': 'Nstruct', 'name': 'n_struct', 'type': 'int', 'value': 5, 'min': 1},
         {'title': 'Wait time (ms)', 'name': 'wait_time', 'type': 'int', 'value': 100, 'default': 100, 'min': 0},
     ]
 
@@ -35,6 +36,9 @@ class DAQ_0DViewer_MockComplexSignal(DAQ_Viewer_base):
         if param.name() == 'signal_type':
             self.controller.signal_type = param.value()
         elif param.name() == 'refresh':
+            self.controller.ini_random_structures()
+        elif param.name() == 'n_struct':
+            self.controller.Nstruct = param.value()
             self.controller.ini_random_structures()
 
     def ini_detector(self, controller=None):
