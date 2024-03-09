@@ -8,13 +8,14 @@ from pymodaq.utils import gui_utils as gutils
 from pymodaq.utils.plotting.data_viewers import Viewer1D, Viewer2D
 
 from pymodaq.utils.data import DataToExport, DataActuator, DataToActuators
+from pyqtgraph.parametertree import Parameter
 
 
 class BayesianModelMock(BayesianModelDefault):
-
+    params = BayesianModelDefault.params + [
+        {'title': 'Update data', 'name': 'update_data', 'type': 'bool_push', 'label': 'Update Data'}
+    ]
     def ini_model(self):
-
-
         dock_mock = gutils.Dock('Mock Data')
         dock_widget = QWidget()
         dock_mock.addWidget(dock_widget)
@@ -29,6 +30,13 @@ class BayesianModelMock(BayesianModelDefault):
 
         self.viewer_mock.show_data(dwa)
         self.viewer_mock.get_action('crosshair').trigger()
+
+    def update_settings(self, param: Parameter):
+        super().update_settings(param)
+        if param.name() == 'update_data':
+            controller = self.modules_manager.get_mod_from_name('ComplexData').controller
+            dwa = controller.get_data_grid()
+            self.viewer_mock.show_data(dwa)
 
     def convert_output(self, outputs: List[np.ndarray], best_individual=None) -> DataToActuators:
         """ Convert the output of the Optimisation Controller in units to be fed into the actuators
