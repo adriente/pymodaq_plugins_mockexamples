@@ -68,11 +68,22 @@ class DataSignal:
                            Axis('Yaxis', data=y, index=0)]
                        )
 
+    def get_cnrs_datagrid(self) -> DataRaw:
+        x = np.linspace(-5, 5, data_CNRS.shape[1])
+        y = np.linspace(-5, 5, data_CNRS.shape[0])
+        return DataRaw('Random Gaussians', data=[data_CNRS],
+                       axes=[
+                           Axis('xaxis', data=x, index=1),
+                           Axis('Yaxis', data=y, index=0)]
+                       )
+
     def get_data_grid(self):
         if self.signal_type == 'Gaussian':
             return self.get_random_hypergaussian_datagrid()
         elif self.signal_type == 'Lorentzian':
             return self.get_random_lorentzian_1D()
+        else:
+            return DataRaw('CNRS', data=[data_CNRS])
 
     def random_hypergaussians2D_signal(self, xy, coeff=1.0):
         return self.random_hypergaussians2D(xy, coeff)[0, 0]

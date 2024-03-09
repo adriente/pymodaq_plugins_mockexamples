@@ -13,14 +13,20 @@ from pymodaq.utils.data import DataToExport, DataActuator, DataToActuators
 class BayesianModelMock(BayesianModelDefault):
 
     def ini_model(self):
-        controller = self.modules_manager.get_mod_from_name('ComplexData').controller
-        dwa = controller.get_random_lorentzian_1D()
+
 
         dock_mock = gutils.Dock('Mock Data')
         dock_widget = QWidget()
         dock_mock.addWidget(dock_widget)
         self.optimisation_controller.dockarea.addDock(dock_mock, 'bottom')
-        self.viewer_mock = Viewer1D(dock_widget)
+
+        controller = self.modules_manager.get_mod_from_name('ComplexData').controller
+        dwa = controller.get_data_grid()
+        if controller.signal_type == 'Lorentzian':
+            self.viewer_mock = Viewer1D(dock_widget)
+        else:
+            self.viewer_mock = Viewer2D(dock_widget)
+
         self.viewer_mock.show_data(dwa)
         self.viewer_mock.get_action('crosshair').trigger()
 
@@ -42,8 +48,12 @@ class BayesianModelMock(BayesianModelDefault):
         """
         try:
             if best_individual is not None:
-                self.viewer_mock.double_clicked(*[float(coord) for coord in best_individual])
-        except KeyError:
+                pos_list = [float(coord) for coord in best_individual]
+                if isinstance(self.viewer_mock, Viewer2D):
+                    pos_list = self.viewer_mock.view.unscale_axis(*list(pos_list))
+                    pos_list = list(pos_list)
+                self.viewer_mock.set_crosshair_position(*pos_list)
+        except Exception as e:
             pass
         return DataToActuators('outputs', mode='abs',
                                data=[DataActuator(self.modules_manager.actuators_name[ind],
