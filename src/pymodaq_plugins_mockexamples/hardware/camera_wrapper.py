@@ -20,10 +20,11 @@ class Camera:
     amp_noise = 4
     fringes = True
     axes = ['X', 'Y', 'Theta']
+    units = ['mm', 'mm', '°']
 
     def __init__(self):
         super().__init__()
-        self._image = None
+        self._image: np.ndarray = None
         self._current_value = dict(X=0., Y=0., Theta=0.)
         self.base_Mock_data()
 
@@ -51,7 +52,7 @@ class Camera:
         self._image = data_mock
         return self._image
 
-    def get_data(self):
+    def get_data(self) -> np.ndarray:
         return np.roll(np.roll(self._image + self.amp_noise * np.random.rand(len(self.y_axis),
                                                                              len(self.x_axis)),
                                int(self._current_value['X']), axis=1),
