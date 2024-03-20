@@ -22,10 +22,14 @@ class DAQ_1DViewer_Pinem(DAQ_Viewer_base):
     params = comon_parameters+[
         {'title': 'g', 'name': 'g', 'type': 'slide', 'value': 1, 'default': 1, 'min': 0,
          'max': 5, 'subtype': 'linear'},
-         {'title': 'amp', 'name': 'amplitude', 'type': 'slide', 'value': 20, 'default': 20, 'min': 5,
+         # the strength of the Signal to noise ratio is solely dependent on the amplitude of the signal
+        {'title': 'amp', 'name': 'amplitude', 'type': 'slide', 'value': 20, 'default': 20, 'min': 5,
          'max': 500, 'subtype': 'linear'},
-         {'title': 'offset', 'name': 'offset', 'type': 'slide', 'value': 0.5, 'default': 0.5, 'min': 0.0,
-         'max': 5.0, 'subtype': 'linear'}
+        {'title': 'offset', 'name': 'offset', 'type': 'slide', 'value': 0.5, 'default': 0.5, 'min': 0.0,
+         'max': 5.0, 'subtype': 'linear'},
+        {'title': 'noise', 'name': 'noise', 'type': 'bool', 'value': True, 'default': True},
+        {'title': 'background', 'name': 'background', 'type': 'slide', 'value': 0.1, 'default': 0.1, 'min': 0.0,
+         'max': 1.0, 'subtype': 'linear'}
         # elements to be added here as dicts in order to control your custom stage
         ############
         ]
@@ -50,6 +54,12 @@ class DAQ_1DViewer_Pinem(DAQ_Viewer_base):
         	
         if param.name() == 'offset' :
             self.controller.offset = param.value()
+
+        if param.name() == 'noise' :
+            self.controller.noise = param.value()
+
+        if param.name() == 'background' :
+            self.controller.background = param.value()
         	
 
     def ini_detector(self, controller=None):

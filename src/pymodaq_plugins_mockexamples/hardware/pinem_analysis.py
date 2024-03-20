@@ -1,75 +1,46 @@
-# import tensorflow as tf
-# from tensorflow import keras
+from tensorflow.keras.models import load_model
+from pathlib import Path
 import numpy as np
 
-
-from typing import Type
-import logging
-from pathlib import Path
-import pytorch_lightning as pl
-import torch
-
-def evaluate_model(model, input):
-    # assert input.shape[-1] == model.net.nf
-    if len(input.shape) == 1:
-        input = np.expand_dims(input, axis=0)
-    if input.shape[-2] != 1:
-        input = np.expand_dims(input, axis=-2)
-    assert len(input.shape) <= 3
-
-    torch_input = torch.tensor(input, dtype=torch.float32).to(model.device)
-
-    return model(torch_input).detach().cpu().numpy()
-
-
-def load_model(type: Type[pl.LightningModule], path: Path, **kwargs):
-    """Load the autoencoder model from the save directory.
-
-    Parameters
-    ----------
-    type : Type[pl.LightningModule]
-        The type of the model to load.
-    path : Path
-        The checkpoint path.
-    **kwargs : dict
-        The keyword arguments to pass to the load_from_checkpoint method.
-        Instead one can add `self.save_hyperparameters()` to the init method
-        of the model.
-
-    Returns
-    -------
-    model : pl.LightningModule
-        The trained model.
-
-    """
-    if not path.exists():
-        logging.info("Model not found. Returning None.")
-        return None
-    model = type.load_from_checkpoint(path, **kwargs)
-    return model
-
-# def make_predictions(model, input_data):
-#     predictions = model.predict(input_data)
-    
-#     return predictions
+# TODO : Implement a way for the user to chose what model to load. 
+# TODO : Implement some utility function that adapts the code the expected shape from the neural network. (For example)
 
 class PinemAnalysis : 
+    """
+    Class to use the neural network and perform the data analysis in live.
+
+    Args:
+    model_file : str
+        Path to the model file (hdf5 format)
+
+    It can be any keras-usable model file.
+    """
     def __init__(self,model_file) : 
         self.model = load_model(model_file)
 
-    def remove_background(self, data) :
-        bkgd = data[:102]
-        a = np.ones((102,1))
-        return data - np.linalg.inv(a.T@a)@a.T@bkgd
+    # TODO : Implement scaling along with the normalization
 
-    def normalize(self, data) : 
+    def normalize(self, data) :
+        """
+        Normalize the data between 0 and 1.
+
+        Args:
+        data : np.ndarray
+            Data to normalize it should be a 1D array.
+        """ 
         M = np.max(data)
         m = np.min(data)
         return (data-m)/(M-m)
     
     def predict(self, data) : 
-        bdata = self.remove_background(data)
-        ndata = self.normalize(bdata)
+        """
+        Predict the shape of the spectrum (i.e. its underlying parameters) using the neural network.
+
+        Args:
+        data : np.ndarray
+            Data to predict it should be a 1D array.
+        """
+        ndata = self.normalize(data)
         ndata = np.expand_dims(ndata, axis=0)
-        g, rt = evaluate_model(self.model, ndata)
+        g, rt = self.model.predict(ndata)
         return g, rt

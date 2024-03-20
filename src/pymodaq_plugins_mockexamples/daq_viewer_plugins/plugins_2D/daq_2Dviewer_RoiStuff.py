@@ -47,9 +47,9 @@ class DAQ_2DViewer_RoiStuff(DAQ_2DViewer_MockCamera):
                 QThread.msleep(kwargs.get('wait_time', 100))
                 if self.settings['use_roi']:
                     dte = DataToExport('cropped')
-                    for dwa in data:
-                        dwa.
-                        dte.append(dwa.isig[])
+                    # for dwa in data:
+                    #     # dwa.
+                    #     dte.append(dwa.isig[])
                 self.dte_signal.emit(data)
                 QtWidgets.QApplication.processEvents()
         else:
