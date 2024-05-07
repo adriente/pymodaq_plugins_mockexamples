@@ -12,18 +12,57 @@ from pymodaq_plugins_mockexamples.hardware.wrapper import ActuatorWrapperWithTau
 
 
 class BeamSteeringActuators(ActuatorWrapperWithTauMultiAxes):
-    axes = Camera.axes + ['Power']
-    _units = Camera.units + ['W']
+    axes = ['X', 'Y', 'Power']
+    _units = ['mm', 'mm', 'W']
     _epsilon = 0.01
-    _tau = 0.3  # s
+    _tau = 0.01  # s
 
     def __init__(self):
         super().__init__()
 
-        self._current_values = [128, 128, 0,  1]
+        self._current_values = [0, 0, 1]
 
 
-class BeamSteering():
+class Camera:
+    Nx = 256
+    Ny = 256
+    amp = 20
+    x0 = 128
+    y0 = 128
+    dx = 20
+    dy = 10
+    n = 1
+    amp_noise = 4
+    fringes = False
+
+    def __init__(self):
+        super().__init__()
+        self._image: np.ndarray = None
+        self.base_Mock_data()
+
+    def base_Mock_data(self):
+        self.x_axis = np.linspace(0, self.Nx, self.Nx, endpoint=False)
+        self.y_axis = np.linspace(0, self.Ny, self.Ny, endpoint=False)
+        data_mock = self.amp * (
+            mutils.gauss2D(self.x_axis, self.x0, self.dx,
+                          self.y_axis, self.y0, self.dy,
+                          self.n,))
+
+        for indy in range(data_mock.shape[0]):
+            if self.fringes:
+                data_mock[indy, :] = data_mock[indy, :] * np.sin(self.x_axis / 4) ** 2
+
+        self._image = data_mock
+        return self._image
+
+    def get_data(self, xpos, ypos) -> np.ndarray:
+        return np.roll(np.roll(self._image + self.amp_noise * np.random.rand(len(self.y_axis),
+                                                                             len(self.x_axis)),
+                               int(xpos), axis=1),
+                       int(ypos), axis=0)
+
+
+class BeamSteering:
     _tau = BeamSteeringActuators._tau
 
     def __init__(self):
@@ -58,8 +97,6 @@ class BeamSteering():
         """
         if axis in BeamSteeringActuators.axes:
             self.actuators.move_at(value, axis)
-        if axis in Camera.axes:
-            self.camera.set_value(axis, value)
 
     def stop(self, axis: str):
         self.actuators.stop(axis)
@@ -74,7 +111,8 @@ class BeamSteering():
         return self.actuators.get_value(axis)
 
     def get_camera_data(self) -> np.ndarray:
-        return self.camera.get_data() * self.actuators.get_value('Power')
+        return self.camera.get_data(self.actuators.get_value('X'),
+                                    self.actuators.get_value('Y')) * self.actuators.get_value('Power')
 
     def get_photodiode_data(self) -> float:
         
@@ -83,6 +121,7 @@ class BeamSteering():
         width = 20
         
         return np.mean(
-            self.camera.get_data()[
+            self.camera.get_data(self.actuators.get_value('X'),
+                                    self.actuators.get_value('Y'))[
                int(idy-width/2): int(idy+width/2),
                int(idx-width/2): int(idx+width/2)]) * self.actuators.get_value('Power')

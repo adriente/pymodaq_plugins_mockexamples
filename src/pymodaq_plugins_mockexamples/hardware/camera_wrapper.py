@@ -18,7 +18,7 @@ class Camera:
     dy = 40
     n = 1
     amp_noise = 4
-    fringes = True
+    fringes = False
     axes = ['X', 'Y', 'Theta']
     units = ['mm', 'mm', '°']
 

@@ -1,16 +1,12 @@
-from typing import List
-from qtpy.QtWidgets import QWidget, QApplication
-
-from copy import deepcopy
-
 import numpy as np
+from qtpy.QtWidgets import QWidget, QApplication
+from typing import List
 
+from pymodaq.utils.parameter import Parameter
 from pymodaq.extensions.bayesian.utils import BayesianModelDefault
 from pymodaq.utils import gui_utils as gutils
 from pymodaq.utils.plotting.data_viewers import Viewer1D, Viewer2D
-
-from pymodaq.utils.data import DataToExport, DataActuator, DataToActuators, DataRaw
-from pyqtgraph.parametertree import Parameter
+from pymodaq.utils.data import DataActuator, DataToActuators, DataRaw
 
 
 class BayesianModelMock(BayesianModelDefault):

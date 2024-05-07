@@ -1,12 +1,12 @@
 from qtpy import QtWidgets
 from qtpy.QtCore import Signal, QThread, Slot
-from pymodaq.utils import daq_utils as utils
+from pymodaq.utils import math_utils as mutils
 from pymodaq.utils.data import DataFromPlugins, DataToExport, DataRaw, Axis
 import numpy as np
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base
 from easydict import EasyDict as edict
 from collections import OrderedDict
-from pymodaq.utils.daq_utils import gauss1D
+from pymodaq.utils.math_utils import gauss1D
 from pymodaq.control_modules.viewer_utility_classes import comon_parameters
 from PIL import Image
 from pathlib import Path
@@ -54,7 +54,7 @@ class DataSignal(ActuatorWrapperWithTauMultiAxes):
             y = [y]
         signal = np.zeros((len(x), len(y)))
         for ind in range(self.Nstruct):
-            signal += self.amp[ind] * utils.gauss2D(x, self.x0s[ind], coeff * self.dx[ind],
+            signal += self.amp[ind] * mutils.gauss2D(x, self.x0s[ind], coeff * self.dx[ind],
                                                     y, self.y0s[ind], coeff * self.dy[ind], 1)
         signal += 0.025 * np.random.rand(len(x), len(y))
         return signal

@@ -62,6 +62,8 @@ class DAQ_Move_BSPiezoMirror(DAQ_Move_base):
              daq_utils.ThreadCommand
         """
         self.ini_stage_init(controller, BeamSteering())
+        self.controller.tau = self.settings['tau'] / 1000
+
         info = ""
         initialized = True
         return info, initialized
