@@ -98,8 +98,8 @@ class PinemGenerator():
         self,
         n: int,
         kernel,
-        n_cutoff: int = 50,
-        k_cutoff: int = 50,
+        n_cutoff: int = 20,
+        k_cutoff: int = 100,
         amplitude: int = 50
     ):
         self.n = n
@@ -124,64 +124,67 @@ class PinemGenerator():
     @amplitude.setter
     def amplitude(self, value) : 
         self._amplitude = value
-        self.pinem = Pinem(x = self.x, amplitude = self._amplitude, kernel = self.kernel, n_cutoff = self.n_cutoff, k_cutoff = self.k_cutoff)
+        self.pinem = Pinem(x=self.x, amplitude=self._amplitude, kernel=self.kernel,
+                           n_cutoff=self.n_cutoff, k_cutoff=self.k_cutoff)
 
     @property
-    def omg1 (self) :
+    def omg1(self):
         return self._omg1
-    
+
     @omg1.setter
-    def omg1(self, value) :
+    def omg1(self, value):
         self._omg1 = value
-        self.x = np.linspace(-30*value, 30*value, self.n)
-        self.pinem = Pinem(x = self.x, amplitude = self._amplitude, kernel = self.kernel, n_cutoff = self.n_cutoff, k_cutoff = self.k_cutoff)
+        self.x = np.linspace(-30 * value, 30 * value, self.n)
+        self.pinem = Pinem(x=self.x, amplitude=self._amplitude, kernel=self.kernel,
+                           n_cutoff=self.n_cutoff, k_cutoff=self.k_cutoff)
 
     @property
-    def omg2 (self) :
-        return 2*self.omg1
-    
+    def omg2(self):
+        return 2 * self.omg1
+
     @property
-    def g1 (self) :
-        if self._g1 is None :
+    def g1(self):
+        if self._g1 is None:
             return np.random.uniform(0.1, 2.0)
-        else : 
+        else:
             return self._g1
-    
+
     @g1.setter
-    def g1(self, value) :
+    def g1(self, value):
         self._g1 = value
 
     @property
-    def g2 (self) :
-        if self._g2 is None :
+    def g2(self):
+        if self._g2 is None:
             return np.random.uniform(0.1, 2.0)
-        else :
+        else:
             return self._g2
-        
+
     @g2.setter
-    def g2(self, value) :
+    def g2(self, value):
         self._g2 = value
 
     @property
-    def theta (self) :
-        if self._theta is None : 
+    def theta(self):
+        if self._theta is None:
             return np.random.uniform(0, np.pi)
-        else :
+        else:
             return self._theta
-        
+
     @theta.setter
-    def theta(self, value) :
+    def theta(self, value):
         self._theta = value
 
     @property
-    def fwhm (self) :
+    def fwhm(self):
         return self._fwhm
-    
+
     @fwhm.setter
-    def fwhm(self, value) :
+    def fwhm(self, value):
         self._fwhm = value
 
-    def gen_data(self) : 
-        spectre = self.pinem.calc_sq_modulus(omega1=self.omg1,omega2 = self.omg2, g1 =  self.g1, g2 = self.g2, theta =  self.theta, fwhm = self.fwhm)
+    def gen_data(self):
+        spectre = self.pinem.calc_sq_modulus(omega1=self.omg1, omega2=self.omg2, g1=self.g1,
+                                             g2=self.g2, theta=self.theta, fwhm=self.fwhm)
         noisy_spectre = np.random.poisson(spectre)
         return noisy_spectre
