@@ -30,6 +30,11 @@ class DAQ_1DViewer_PinemAnalysis(DAQ_1DViewer_Pinem):
 
     """
 
+    def ini_attributes(self):
+        self.controller: PinemGenerator = None
+        self.x_axis = None
+        self.pinem_model = PinemAnalysis(file_path + '/plasmon_cnn_Kalinin_div2_nobkgd.h5')
+    
     def grab_data(self, Naverage=1, **kwargs):
         """Start a grab from the detector
 
@@ -43,18 +48,18 @@ class DAQ_1DViewer_PinemAnalysis(DAQ_1DViewer_Pinem):
         """
         data_array = self.controller.gen_data()
         axis = Axis('energy', data=self.controller.x)
-        pinem_model = PinemAnalysis(file_path + '/cnn_3layers_32_v1.h5')
+        # pinem_model = PinemAnalysis(file_path + '/cnn_3layers_32_v1.h5')
+
         # TODO : For now we'll just predict g, but ideally we should be flexible depending on the loaded neural network.
         # While I think it should be possible to get input and output shape from the h5 file, we could use a json file to store that info.
         # This way we could also store parameter names.
-        g = pinem_model.predict(data_array)
-
+        g = self.pinem_model.predict(data_array, self.controller.remove_background)
         # We compare true g vs predicted g
         self.dte_signal.emit(DataToExport('Pinem',
                                   data=[
                                         DataFromPlugins(name='Constants',
                                                         data=[np.array([self.controller.g]),
-                                                              np.array([g])],
+                                                              np.array([g[0][0]])],
                                                         dim='Data0D', labels=['true g', 'g pred']),
                                       DataFromPlugins(name='Spectrum', data=[data_array],
                                                       dim='Data1D', labels=['Spectrum'],

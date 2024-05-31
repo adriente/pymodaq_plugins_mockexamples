@@ -29,7 +29,8 @@ class DAQ_1DViewer_Pinem(DAQ_Viewer_base):
          'max': 5.0, 'subtype': 'linear'},
         {'title': 'noise', 'name': 'noise', 'type': 'bool', 'value': True, 'default': True},
         {'title': 'background', 'name': 'background', 'type': 'slide', 'value': 0.1, 'default': 0.1, 'min': 0.0,
-         'max': 1.0, 'subtype': 'linear'}
+         'max': 1.0, 'subtype': 'linear'},
+        {'title': 'remove_background', 'name': 'remove_background', 'type': 'bool', 'value': True, 'default': True}
         # elements to be added here as dicts in order to control your custom stage
         ############
         ]
@@ -60,6 +61,9 @@ class DAQ_1DViewer_Pinem(DAQ_Viewer_base):
 
         if param.name() == 'background' :
             self.controller.background = param.value()
+
+        if param.name() == 'remove_background' :
+            self.controller.remove_background = param.value()
         	
 
     def ini_detector(self, controller=None):

@@ -16,9 +16,22 @@ class PinemAnalysis :
     It can be any keras-usable model file.
     """
     def __init__(self,model_file) : 
-        self.model = load_model(model_file)
+        self.model = load_model(model_file, compile = False)
+        print('Loaded model from', model_file)
 
     # TODO : Implement scaling along with the normalization
+        
+    def eval_background(self, data) :
+        """
+        Evaluate the background of the spectrum.
+
+        Args:
+        data : np.ndarray
+            Data to evaluate the background it should be a 1D array.
+        """
+        first10 = data[:int(data.shape[0] * 0.1)]
+        last10 = data[int(data.shape[0] * 0.9):]
+        return np.concatenate((first10, last10)).mean()
 
     def normalize(self, data) :
         """
@@ -32,7 +45,7 @@ class PinemAnalysis :
         m = np.min(data)
         return (data-m)/(M-m)
     
-    def predict(self, data) : 
+    def predict(self, data, remove_background = True) : 
         """
         Predict the shape of the spectrum (i.e. its underlying parameters) using the neural network.
 
@@ -40,7 +53,48 @@ class PinemAnalysis :
         data : np.ndarray
             Data to predict it should be a 1D array.
         """
+        if remove_background :
+            data = data - self.eval_background(data).clip(min=0)
         ndata = self.normalize(data)
-        ndata = np.expand_dims(ndata, axis=0)
-        g, rt = self.model.predict(ndata)
-        return g, rt
+        cdata = correct_center_of_mass(ndata)
+        cdata = cdata[np.newaxis, :, np.newaxis]
+        g = self.model.predict(cdata)
+        return g
+    
+def center_of_mass(data : np.ndarray) :
+    """
+    Compute the center of mass of a collection of 1D array
+
+    Parameters
+    ----------
+    data : 2D array
+        The data to compute the center of mass with shape (number of points in the spectra,)
+    """ 
+    coords = np.arange(data.shape[0])
+    com = np.sum(data*coords)/np.sum(data)
+    return com
+
+
+def eval_center_of_mass(data) :
+    """
+    Evaluate the center of mass of a set of spectra. The spectra should have the shape (number of spectra, spectra length).
+
+    Args:
+    - data (np.ndarray): The set of spectra to evaluate the center of mass of.
+    """
+    cdata = data.copy()
+    hM = cdata.max()/1.3
+    mask = cdata < hM
+    cdata[mask] = 0
+    return center_of_mass(cdata)
+    
+def correct_center_of_mass(data) :
+    """
+    Correct the center of mass of a set of spectra. The spectra should have the shape (number of spectra, spectra length).
+
+    Args:
+    - data (np.ndarray): The set of spectra to correct the center of mass of.
+    """
+    com = eval_center_of_mass(data)
+    out  = np.roll(data, int(np.round(data.shape[0]/2 - com)))
+    return out

@@ -64,7 +64,7 @@ class Pinem:
     - pump: float describing the energy of the subbands in eV
     - n_cutoff: int describing the number of subbands to consider
     """
-    def __init__(self, x, amplitude,n_cutoff, kernel = None):
+    def __init__(self, x, amplitude,n_cutoff, kernel = None, plasmon = True):
         self.x = x
         # delta g is used to produce a linear distribution of g values between 0.0001*g0 and 0.9999*g0
         self.delta_g = np.linspace(0.0001,1.0-0.0001,1000)
@@ -75,6 +75,7 @@ class Pinem:
         self.n_cutoff = n_cutoff
         self.scale = self.x[1] - self.x[0]
         self.ns, self.fns = self.gen_indices()
+        self.plasmon = plasmon
 
 
     def gen_indices(self):
@@ -176,7 +177,28 @@ class Pinem:
         Mwave, mwave = np.max(mod_wave), np.min(mod_wave)
         nwave = (mod_wave - mwave)/(Mwave - mwave)
         fwave = self.amplitude*nwave
+        if self.plasmon :
+            fwave += self.add_plasmon(self.amplitude, fwhm)
         return fwave
+    
+    def add_plasmon(self, amplitude, fwhm) :
+        """
+        Add a plasmon peak to the PINEM spectrum. The plasmon peak is a gaussian profile.
+
+        Args:
+        - center (float): The energy of the plasmon peak in eV
+        - sigma (float): The standard deviation of the gaussian profile
+        - amplitude (float): The amplitude of the plasmon peak
+        """
+        peak_num = np.random.randint(1, 4)
+        plasmon = np.zeros(self.x.shape[0])
+        for i in range(peak_num) :
+            center = np.random.uniform(1.5, 15.0)
+            sigma = fwhm*2*np.random.uniform(1.0,5.0)
+            amp = amplitude*np.random.uniform(0.01, 0.2)
+            plasmon += amp*my_gaussian(self.x, center, sigma)
+
+        return plasmon
 
 class PinemGenerator():
     """
@@ -209,11 +231,14 @@ class PinemGenerator():
 
         self._omg = 1.5
         self._g = None
-        self._fwhm = 0.35
+        self._fwhm = 0.7
         self._offset = None
         self.scale = scale
         self._noise = True
         self._background = 0.1
+        self._remove_background = True
+        self._counter = 0
+        self._angles = np.linspace(0, 2*np.pi, 360)
 
     ## Getters and setters ##
         
@@ -262,8 +287,9 @@ class PinemGenerator():
     @property
     def g (self) :
         # Currently, the g value is randomly generated if not set
+        self._counter += 1
         if self._g is None :
-            return np.random.uniform(0.1, 2.0)
+            return 3*(np.sin(self._angles[self._counter%360])**2)
         else : 
             return self._g
     
@@ -307,13 +333,21 @@ class PinemGenerator():
     def background(self, value) :
         self._background = value   
 
+    @property
+    def remove_background (self) :
+        return self._remove_background
+    
+    @remove_background.setter
+    def remove_background(self, value) :
+        self._remove_background = value
+
     ## Data generation ##
 
     def gen_data(self) : 
         spectre = self.pinem.calc_sq_modulus(omega=self.omg, g =  self.g, offset=self.offset, fwhm = self.fwhm, rt=self.rt)
         # The spectra are already scaled to [0, self.amplitude] in the PINEM class
         # Then we add the background and the noise if required. The background is expected to be expressed in percentage of the amplitude.
-        if self.noise :
+        if not(self.noise) :
             noiseless_spectre = spectre + self.amplitude*self.background
             return noiseless_spectre
         else :
