@@ -29,9 +29,10 @@ class Camera:
     amp = 20
     x0 = 128
     y0 = 128
-    dx = 20
-    dy = 10
-    n = 1
+    _dx = 20
+    _dy = 10
+    _n = 1
+    _angle = 0
     amp_noise = 4
     fringes = False
 
@@ -40,13 +41,50 @@ class Camera:
         self._image: np.ndarray = None
         self.base_Mock_data()
 
+    @property
+    def dx(self):
+        return self._dx
+
+    @dx.setter
+    def dx(self, new_dx: float):
+        self._dx = new_dx
+        self.base_Mock_data()
+
+    @property
+    def dy(self):
+        return self._dy
+
+    @dy.setter
+    def dy(self, new_dy: float):
+        self._dy = new_dy
+        self.base_Mock_data()
+
+    @property
+    def n(self):
+        return self._n
+
+    @n.setter
+    def n(self, new_n: int):
+        self._n = new_n
+        self.base_Mock_data()
+
+    @property
+    def angle(self):
+        return self._angle
+
+    @angle.setter
+    def angle(self, new_angle: float):
+        self._angle = new_angle
+        self.base_Mock_data()
+
     def base_Mock_data(self):
         self.x_axis = np.linspace(0, self.Nx, self.Nx, endpoint=False)
         self.y_axis = np.linspace(0, self.Ny, self.Ny, endpoint=False)
         data_mock = self.amp * (
             mutils.gauss2D(self.x_axis, self.x0, self.dx,
-                          self.y_axis, self.y0, self.dy,
-                          self.n,))
+                           self.y_axis, self.y0, self.dy,
+                           self.n,
+                           self.angle))
 
         for indy in range(data_mock.shape[0]):
             if self.fringes:
