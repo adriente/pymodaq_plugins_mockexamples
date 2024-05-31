@@ -19,6 +19,11 @@ class DAQ_2DViewer_BSCamera(DAQ_Viewer_base):
 
     params = comon_parameters + [
         {'title': 'Wait time (ms)', 'name': 'wait_time', 'type': 'int', 'value': 100, 'min': 0},
+        {'title': 'Beam Size X', 'name': 'size_x', 'type': 'float', 'value': 40, 'min': 10},
+        {'title': 'Beam Size Y', 'name': 'size_y', 'type': 'float', 'value': 20, 'min': 10},
+        {'title': 'Beam Angle (deg)', 'name': 'angle', 'type': 'float', 'value': 0,},
+        {'title': 'Gaussian-ness', 'name': 'index_n', 'type': 'int', 'value': 1, },
+
     ]
 
     def ini_attributes(self):
@@ -28,7 +33,14 @@ class DAQ_2DViewer_BSCamera(DAQ_Viewer_base):
     def commit_settings(self, param: Parameter):
         """
         """
-        pass
+        if param.name() == 'size_x':
+            self.controller.camera.dx = param.value()
+        elif param.name() == 'size_y':
+            self.controller.camera.dy = param.value()
+        elif param.name() == 'angle':
+            self.controller.camera.angle = param.value()
+        elif param.name() == 'index_n':
+            self.controller.camera.n = param.value()
 
     def ini_detector(self, controller=None):
         self.ini_detector_init(controller, BeamSteering())
