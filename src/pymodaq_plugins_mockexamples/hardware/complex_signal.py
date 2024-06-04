@@ -1,15 +1,16 @@
 from qtpy import QtWidgets
 from qtpy.QtCore import Signal, QThread, Slot
-from pymodaq.utils import daq_utils as utils
+from pymodaq.utils import math_utils as mutils
 from pymodaq.utils.data import DataFromPlugins, DataToExport, DataRaw, Axis
 import numpy as np
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base
 from easydict import EasyDict as edict
 from collections import OrderedDict
-from pymodaq.utils.daq_utils import gauss1D
+from pymodaq.utils.math_utils import gauss1D
 from pymodaq.control_modules.viewer_utility_classes import comon_parameters
 from PIL import Image
 from pathlib import Path
+from pymodaq_plugins_mockexamples.hardware.wrapper import ActuatorWrapperWithTauMultiAxes
 
 here = Path(__file__).parent
 # %%
@@ -18,18 +19,18 @@ with Image.open(str(here.parent.joinpath('hardware', 'CNRS_degrade.png'))) as im
     data_CNRS = np.array(im)
 
 
-class DataSignal:
+class DataSignal(ActuatorWrapperWithTauMultiAxes):
 
-    signal_types = ['Gaussian', 'Lorentzian', 'CNRS']
-    axes_indexes = [0, 1]
-    Nstruct = 5
+    signal_types = ['Lorentzian', 'Gaussian', 'CNRS']
+    axes = ['X', 'Y',]
+    Nstruct = 1
+    _tau = 0.2
 
     def __init__(self):
         super().__init__()
 
         self._data = None
-        self._current_value = [0., None]
-        self.signal_type = 'Gaussian'
+        self.signal_type = self.signal_types[0]
 
     def ini_random_structures(self):
         xlim = [-5, 5]
@@ -53,9 +54,9 @@ class DataSignal:
             y = [y]
         signal = np.zeros((len(x), len(y)))
         for ind in range(self.Nstruct):
-            signal += self.amp[ind] * utils.gauss2D(x, self.x0s[ind], coeff * self.dx[ind],
+            signal += self.amp[ind] * mutils.gauss2D(x, self.x0s[ind], coeff * self.dx[ind],
                                                     y, self.y0s[ind], coeff * self.dy[ind], 1)
-        signal += 0.1 * np.random.rand(len(x), len(y))
+        signal += 0.025 * np.random.rand(len(x), len(y))
         return signal
 
     def get_random_hypergaussian_datagrid(self) -> DataRaw:
@@ -68,6 +69,23 @@ class DataSignal:
                            Axis('Yaxis', data=y, index=0)]
                        )
 
+    def get_cnrs_datagrid(self) -> DataRaw:
+        x = np.linspace(-5, 5, data_CNRS.shape[1])
+        y = np.linspace(-5, 5, data_CNRS.shape[0])
+        return DataRaw('Random Gaussians', data=[data_CNRS],
+                       axes=[
+                           Axis('xaxis', data=x, index=1),
+                           Axis('Yaxis', data=y, index=0)]
+                       )
+
+    def get_data_grid(self):
+        if self.signal_type == 'Gaussian':
+            return self.get_random_hypergaussian_datagrid()
+        elif self.signal_type == 'Lorentzian':
+            return self.get_random_lorentzian_1D()
+        else:
+            return DataRaw('CNRS', data=[data_CNRS])
+
     def random_hypergaussians2D_signal(self, xy, coeff=1.0):
         return self.random_hypergaussians2D(xy, coeff)[0, 0]
 
@@ -79,7 +97,7 @@ class DataSignal:
         return signal
 
     def get_random_lorentzian_1D(self) -> DataRaw:
-        x = np.linspace(-5, 5, 251)
+        x = np.linspace(-5, 5, 401)
         return DataRaw('Random Lorentian', data=[
             self.diverging1D(x)],
                        axes=[
@@ -87,13 +105,7 @@ class DataSignal:
                        ]
                        )
 
-    def get_value(self, axis: int = 0):
-        return self._current_value[self.axes_indexes.index(axis)]
-
-    def set_value(self, axis: int = 0, value: float = 0.):
-        self._current_value[self.axes_indexes.index(axis)] = value
-
-    def generate_data(self, x, y=None):
+    def generate_data(self, x, y=0):
         if self.signal_type == 'Gaussian':
             return self.random_hypergaussians2D_signal((x, y))
         elif self.signal_type == 'Lorentzian':
@@ -105,5 +117,5 @@ class DataSignal:
             return data_CNRS[ind_y, ind_x]
 
     def get_data_0D(self):
-        return self.generate_data(*self._current_value)
+        return self.generate_data(*self._current_values)
 
