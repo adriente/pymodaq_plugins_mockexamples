@@ -218,7 +218,8 @@ class PinemGenerator():
         n: int,
         scale : float,
         kernel,
-        n_cutoff: int = 50,
+        n_cutoff: int = 20,
+        k_cutoff: int = 100,
         amplitude: int = 50
     ):
         self.n = n
@@ -310,11 +311,11 @@ class PinemGenerator():
         self._offset = value
 
     @property
-    def fwhm (self) :
+    def fwhm(self):
         return self._fwhm
-    
+
     @fwhm.setter
-    def fwhm(self, value) :
+    def fwhm(self, value):
         self._fwhm = value
 
     @property
@@ -353,3 +354,4 @@ class PinemGenerator():
         else :
             noisy_spectre = np.random.poisson(spectre+self.background*self.amplitude)
             return noisy_spectre
+
