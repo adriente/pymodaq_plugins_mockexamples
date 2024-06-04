@@ -20,8 +20,17 @@ class DAQ_1DViewer_Pinem(DAQ_Viewer_base):
 
     """
     params = comon_parameters+[
-        {'title': 'g1', 'name': 'g1', 'type': 'slide', 'value': 1, 'default': 1, 'min': 0,
+        {'title': 'g', 'name': 'g', 'type': 'slide', 'value': 1, 'default': 1, 'min': 0,
          'max': 5, 'subtype': 'linear'},
+         # the strength of the Signal to noise ratio is solely dependent on the amplitude of the signal
+        {'title': 'amp', 'name': 'amplitude', 'type': 'slide', 'value': 20, 'default': 20, 'min': 5,
+         'max': 500, 'subtype': 'linear'},
+        {'title': 'offset', 'name': 'offset', 'type': 'slide', 'value': 0.5, 'default': 0.5, 'min': 0.0,
+         'max': 5.0, 'subtype': 'linear'},
+        {'title': 'noise', 'name': 'noise', 'type': 'bool', 'value': True, 'default': True},
+        {'title': 'background', 'name': 'background', 'type': 'slide', 'value': 0.1, 'default': 0.1, 'min': 0.0,
+         'max': 1.0, 'subtype': 'linear'},
+        {'title': 'remove_background', 'name': 'remove_background', 'type': 'bool', 'value': True, 'default': True}
         # elements to be added here as dicts in order to control your custom stage
         ############
         ]
@@ -38,8 +47,24 @@ class DAQ_1DViewer_Pinem(DAQ_Viewer_base):
         param: Parameter
             A given parameter (within detector_settings) whose value has been changed by the user
         """
-        if param.name() == "g1":
-            self.controller.g1 = param.value()
+        if param.name() == "g":
+            self.controller.g = param.value()
+            
+        if param.name()=='amplitude' :
+            self.controller.amplitude = param.value()
+        	
+        if param.name() == 'offset' :
+            self.controller.offset = param.value()
+
+        if param.name() == 'noise' :
+            self.controller.noise = param.value()
+
+        if param.name() == 'background' :
+            self.controller.background = param.value()
+
+        if param.name() == 'remove_background' :
+            self.controller.remove_background = param.value()
+        	
 
     def ini_detector(self, controller=None):
         """Detector communication initialization
@@ -57,7 +82,7 @@ class DAQ_1DViewer_Pinem(DAQ_Viewer_base):
             False if initialization failed otherwise True
         """
         self.ini_detector_init(old_controller=controller,
-                               new_controller=PinemGenerator(1024, 'Gaussian'))
+                               new_controller=PinemGenerator(1024,0.05, 'Gaussian'))
 
         info = "Whatever info you want to log"
         initialized = True
@@ -85,10 +110,9 @@ class DAQ_1DViewer_Pinem(DAQ_Viewer_base):
                                                         dim='Data1D', labels=['Spectrum'],
                                                         axes=[axis]),
                                         DataFromPlugins(name='Constants',
-                                                        data=[np.array([self.controller.g1]),
-                                                              np.array([self.controller.g2]),
-                                                              np.array([self.controller.theta])],
-                                                        dim='Data0D', labels=['g1', 'g2', 'theta'])
+                                                        data=[np.array([self.controller.g]),
+                                                              np.array([self.controller.offset])],
+                                                        dim='Data0D', labels=['g', 'offset']),
                                         ]))
 
     def stop(self):

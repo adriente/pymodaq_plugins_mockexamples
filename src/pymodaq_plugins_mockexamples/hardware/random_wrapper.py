@@ -26,7 +26,7 @@ class RandomWrapper:
         data_mock = self.amp * (
             mutils.gauss1D(x, self.x0, self.dx,
                            self.n))
-        data_mock += np.random.randn(*data_mock.shape) * self.amp / 50
+        data_mock += np.random.randn(*data_mock.shape) * self.amp / 3
         return data_mock
 
     def get_data_0D(self):

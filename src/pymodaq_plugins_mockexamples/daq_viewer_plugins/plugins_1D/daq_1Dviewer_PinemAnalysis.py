@@ -7,6 +7,15 @@ from pymodaq.utils.parameter import Parameter
 from pymodaq_plugins_mockexamples.hardware.pinem_simulator import PinemGenerator
 from pymodaq_plugins_mockexamples.daq_viewer_plugins.plugins_1D.daq_1Dviewer_Pinem import DAQ_1DViewer_Pinem
 
+from pymodaq_plugins_mockexamples.hardware.pinem_analysis import PinemAnalysis
+
+import os
+
+file_path = os.path.dirname(os.path.abspath(__file__))
+
+
+
+
 class DAQ_1DViewer_PinemAnalysis(DAQ_1DViewer_Pinem):
     """ Instrument plugin class for a 1D viewer.
     
@@ -21,6 +30,11 @@ class DAQ_1DViewer_PinemAnalysis(DAQ_1DViewer_Pinem):
 
     """
 
+    def ini_attributes(self):
+        self.controller: PinemGenerator = None
+        self.x_axis = None
+        self.pinem_model = PinemAnalysis(file_path + '/plasmon_cnn_Kalinin_div2_nobkgd.h5')
+    
     def grab_data(self, Naverage=1, **kwargs):
         """Start a grab from the detector
 
@@ -34,16 +48,19 @@ class DAQ_1DViewer_PinemAnalysis(DAQ_1DViewer_Pinem):
         """
         data_array = self.controller.gen_data()
         axis = Axis('energy', data=self.controller.x)
+        # pinem_model = PinemAnalysis(file_path + '/cnn_3layers_32_v1.h5')
 
-        g1, g2, theta = self.my_pinem_algo(data_array)
-
+        # TODO : For now we'll just predict g, but ideally we should be flexible depending on the loaded neural network.
+        # While I think it should be possible to get input and output shape from the h5 file, we could use a json file to store that info.
+        # This way we could also store parameter names.
+        g = self.pinem_model.predict(data_array, self.controller.remove_background)
+        # We compare true g vs predicted g
         self.dte_signal.emit(DataToExport('Pinem',
                                   data=[
                                         DataFromPlugins(name='Constants',
-                                                        data=[np.array([self.controller.g1]),
-                                                              np.array([self.controller.g2]),
-                                                              np.array([self.controller.theta])],
-                                                        dim='Data0D', labels=['g1', 'g2', 'theta']),
+                                                        data=[np.array([self.controller.g]),
+                                                              np.array([g[0][0]])],
+                                                        dim='Data0D', labels=['true g', 'g pred']),
                                       DataFromPlugins(name='Spectrum', data=[data_array],
                                                       dim='Data1D', labels=['Spectrum'],
                                                       axes=[axis]),

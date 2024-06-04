@@ -21,9 +21,9 @@ class DAQ_2DViewer_RoiStuff(DAQ_2DViewer_MockCamera):
     def ROISelect(self, info: QRectF):
         raise DeprecationWarning('DO not use it anymore, use the roi_select method')
 
-    def roi_select(self, roi_info: RoiInfo, viewer_index: int = 0):
+    def roi_select(self, roi_info: RoiInfo, ind_viewer: int = 0):
         self.roi_select_info = roi_info
-        self.roi_select_viewer_index = viewer_index
+        self.roi_select_viewer_index = ind_viewer
 
     def grab_data(self, Naverage=1, **kwargs):
         """Start a grab from the detector
@@ -36,6 +36,7 @@ class DAQ_2DViewer_RoiStuff(DAQ_2DViewer_MockCamera):
         kwargs: dict
             others optionals arguments
         """
+
         if 'live' in kwargs:
             if kwargs['live']:
                 self.live = True
@@ -47,18 +48,27 @@ class DAQ_2DViewer_RoiStuff(DAQ_2DViewer_MockCamera):
                 QThread.msleep(kwargs.get('wait_time', 100))
                 if self.settings['use_roi']:
                     dte = DataToExport('cropped')
-                    for dwa in data:
-                        dwa.
-                        dte.append(dwa.isig[])
+                    # for dwa in data:
+                    #     # dwa.
+                    #     dte.append(dwa.isig[])
                 self.dte_signal.emit(data)
                 QtWidgets.QApplication.processEvents()
         else:
             data = self.average_data(Naverage)  # hardware averaging
             QThread.msleep(000)
 
+        self.live = False  # don't want to use that for the moment
 
-            self.dte_signal.emit(data)
-
+        data: DataToExport = self.average_data(Naverage)  # hardware averaging
+        QThread.msleep(kwargs.get('wait_time', 100))
+        if self.settings['use_roi']:
+            self.roi_select_info.center_origin()
+            dte = DataToExport('cropped')
+            for dwa in data.data:
+                dte.data.append(dwa.isig[self.roi_select_info.to_slices()])
+        else:
+            dte = data
+        self.dte_signal.emit(dte)
 
 
 if __name__ == '__main__':
