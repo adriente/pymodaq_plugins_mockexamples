@@ -37,6 +37,26 @@ class DAQ_2DViewer_RoiStuff(DAQ_2DViewer_MockCamera):
             others optionals arguments
         """
 
+        if 'live' in kwargs:
+            if kwargs['live']:
+                self.live = True
+                # self.live = False  # don't want to use that for the moment
+
+        if self.live:
+            while self.live:
+                data: DataToExport = self.average_data(Naverage)  # hardware averaging
+                QThread.msleep(kwargs.get('wait_time', 100))
+                if self.settings['use_roi']:
+                    dte = DataToExport('cropped')
+                    # for dwa in data:
+                    #     # dwa.
+                    #     dte.append(dwa.isig[])
+                self.dte_signal.emit(data)
+                QtWidgets.QApplication.processEvents()
+        else:
+            data = self.average_data(Naverage)  # hardware averaging
+            QThread.msleep(000)
+
         self.live = False  # don't want to use that for the moment
 
         data: DataToExport = self.average_data(Naverage)  # hardware averaging
