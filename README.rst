@@ -27,11 +27,6 @@ Authors
 * Sebastien J. Weber  (sebastien.weber@cnrs.fr)
 
 
-.. if needed use this field
-
-  Depending on the plugin type, delete/complete the fields below
-
-
 Instruments
 ===========
 
@@ -63,6 +58,9 @@ Viewer1D
   this detector with the Spectrometer extension (not yet working with PyMoDAQ4)
 * **MockRandom**: Generate a noisy Gaussian with a spread axis (to illustrate the sorting button action of the Viewer1D
   data viewer
+* **Pinem**: Generate Photon-Induced Near-field Electron Microscopy spectra. It is Electron energy loss spectroscopy
+  from the interaction of a near-field (could be induced by a laser on a sample) and probed by the electronic beam.
+  The coupling between the near-field and the electronic beam can be tuned using various parameters (g1, g2, theta)...
 
 
 Viewer2D
@@ -71,7 +69,7 @@ Viewer2D
 * **MockCamera**: if connected with a preset with the MockCamera actuator (or a few of them, X, Y and thera), then the
   image displayed on screen is moved or rotated accordingly to the actuators value. Perfect for a beamsteering example
 * **RoiStuff**: example of ROI exporting into the instrument plugin. Not yet working, planned to be ok for the future
-  > 4.2.* releases.
+  >= 4.2.* releases.
 
 
 ViewerND

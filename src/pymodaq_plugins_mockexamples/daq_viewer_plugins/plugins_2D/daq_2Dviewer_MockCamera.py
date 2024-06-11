@@ -87,9 +87,9 @@ class DAQ_2DViewer_MockCamera(DAQ_Viewer_base):
         for settings in self.settings.child('cam_settings').children():
             if hasattr(self.controller, settings.name()):
                 setattr(self.controller, settings.name(), settings.value())
-
-        # initialize viewers with the future type of data but with 0value data
-        self.dte_signal_temp.emit(self.average_data(1, True),)
+        #
+        # # initialize viewers with the future type of data but with 0value data
+        # self.dte_signal_temp.emit(self.average_data(1, True),)
 
         initialized = True
         info = 'Controller ok'

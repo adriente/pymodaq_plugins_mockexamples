@@ -2,12 +2,14 @@ from pymodaq.control_modules.move_utility_classes import DAQ_Move_base, main  # 
 from pymodaq.control_modules.move_utility_classes import comon_parameters_fun  # common set of parameters for all actuators
 
 from pymodaq.utils.daq_utils import ThreadCommand, getLineInfo  # object used to send info back to the main thread
-from pymodaq_plugins_mockexamples.hardware.complex_signal import DataSignal
+from pymodaq.utils import math_utils as mutils
+
 
 from pymodaq_plugins_mockexamples import config
+from pymodaq_plugins_mockexamples.hardware.pinem_simulator import PinemGenerator
 
 
-class DAQ_Move_MockComplexSignal(DAQ_Move_base):
+class DAQ_Move_Pinem(DAQ_Move_base):
     """
         Wrapper object to access the Mock fonctionnalities, similar wrapper for all controllers.
 
@@ -16,17 +18,18 @@ class DAQ_Move_MockComplexSignal(DAQ_Move_base):
         *params*          dictionnary
         =============== ==============
     """
-    _controller_units = 'whatever'
+    _controller_units = ''
     is_multiaxes = True
-    _axis_names = dict(zip(DataSignal.axes, list(range(len(DataSignal.axes)))))
+    axes_names = ['omg', 'g']
     _epsilon = 0.01
-
-    params = [{'title': 'Tau (ms):', 'name': 'tau', 'type': 'int',
-               'value': DataSignal._tau * 1000, 'tip': 'Characteristic evolution time'},] + \
-             comon_parameters_fun(is_multiaxes, axes_names=_axis_names, epsilon=_epsilon)
+    params = \
+        [
+            {'title': 'Tau (ms):', 'name': 'tau', 'type': 'int', 'value': 500,
+             'tip': 'Characteristic evolution time'},
+        ] + comon_parameters_fun(is_multiaxes, axes_names, epsilon=_epsilon)
 
     def ini_attributes(self):
-        self.controller: DataSignal = None
+        self.controller: PinemGenerator = None
 
     def get_actuator_value(self):
         pos = self.controller.get_value(self.axis_name)
@@ -37,10 +40,7 @@ class DAQ_Move_MockComplexSignal(DAQ_Move_base):
         pass
 
     def commit_settings(self, param):
-        if param.name() == 'tau':
-            self.controller.tau = param.value() / 1000  # controller need a tau in seconds while the param tau is in ms
-        elif param.name() == 'epsilon':
-            self.controller.epsilon = param.value()
+        pass
 
     def ini_stage(self, controller=None):
         """
@@ -59,16 +59,18 @@ class DAQ_Move_MockComplexSignal(DAQ_Move_base):
                  * *info* : string displaying various info
                  * *controller*: instance of the controller object in order to control other axes without the need to init the same controller twice
                  * *stage*: instance of the stage (axis or whatever) object
-                 * *initialized*: boolean indicating if initialization has been done correctly
+                 * *initialized*: boolean indicating if initialization has been done corretly
 
             See Also
             --------
              daq_utils.ThreadCommand
         """
-        self.ini_stage_init(controller, DataSignal())
-        if self.settings['multiaxes', 'multi_status'] == "Master":
-            self.controller.ini_random_structures()
-        info = "Mock MultiAxis"
+
+        self.ini_stage_init(controller, PinemGenerator(1024, 0.05, 'Gaussian'))
+
+        self.g_omega = lambda x: 5 * mutils.gauss1D(x, 1.5, 1.)
+
+        info = "Pinem Simulator"
         initialized = True
         return info, initialized
 
@@ -76,14 +78,18 @@ class DAQ_Move_MockComplexSignal(DAQ_Move_base):
         position = self.check_bound(position)  #if user checked bounds, the defined bounds are applied here
         self.target_value = position
         position = self.set_position_with_scaling(position)
-        pos = self.controller.move_at(position, self.axis_name)
+        pos = self.controller.set_value(self.axis_name, position)
+        if self.axis_name == 'omg':
+            self.controller.g = self.g_omega(self.controller.omg)
 
     def move_rel(self, position):
         position = self.check_bound(self.current_position + position) - self.current_position
         self.target_value = position + self.current_position
         position = self.set_position_with_scaling(self.target_value)
 
-        pos = self.controller.move_at(position, self.axis_name)
+        pos = self.controller.set_value(position)
+        if self.axis_name == 'omg':
+            self.controller.g = self.g_omega(self.controller.omg)
 
     def move_home(self):
         """
