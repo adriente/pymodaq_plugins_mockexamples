@@ -33,27 +33,24 @@ class Camera:
 
     def set_value(self, axis:str = 'X', value: float = 0.):
         self._current_value[axis] = value
-        if axis == 'Theta':
-            self.base_Mock_data()
+        self.base_Mock_data()
 
     def base_Mock_data(self):
-        self.x_axis = np.linspace(0, self.Nx, self.Nx, endpoint=False)
-        self.y_axis = np.linspace(0, self.Ny, self.Ny, endpoint=False)
+        self.x_axis = np.linspace(0, self.Nx, self.Nx, endpoint=False) - self.Nx / 2
+        self.y_axis = np.linspace(0, self.Ny, self.Ny, endpoint=False) - self.Ny / 2
         data_mock = self.amp * (
-            mutils.gauss2D(self.x_axis, self.x0, self.dx,
-                          self.y_axis, self.y0, self.dy,
+            mutils.gauss2D(self.x_axis, self._current_value['X'], self.dx,
+                          self.y_axis, self._current_value['Y'], self.dy,
                           self.n,
                           angle=self._current_value['Theta']))
 
-        for indy in range(data_mock.shape[0]):
-            if self.fringes:
+        if self.fringes:
+            for indy in range(data_mock.shape[0]):
                 data_mock[indy, :] = data_mock[indy, :] * np.sin(self.x_axis / 4) ** 2
 
         self._image = data_mock
         return self._image
 
     def get_data(self) -> np.ndarray:
-        return np.roll(np.roll(self._image + self.amp_noise * np.random.rand(len(self.y_axis),
-                                                                             len(self.x_axis)),
-                               int(self._current_value['X']), axis=1),
-                       int(self._current_value['Y']), axis=0)
+        return self._image + self.amp_noise * np.random.rand(len(self.y_axis),
+                                                             len(self.x_axis))
