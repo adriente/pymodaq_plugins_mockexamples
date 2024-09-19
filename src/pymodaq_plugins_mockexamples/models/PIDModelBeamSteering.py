@@ -3,8 +3,10 @@ from typing import List
 import numpy as np
 from scipy.ndimage import center_of_mass
 
-from pymodaq.utils.data import DataToExport, DataActuator, DataCalculated
+from pymodaq_data.data import DataToExport, DataCalculated
+
 from pymodaq.extensions.pid.utils import PIDModelGeneric, DataToActuatorPID, main
+from pymodaq.utils.data import DataActuator
 
 
 class PIDModelBeamSteering(PIDModelGeneric):

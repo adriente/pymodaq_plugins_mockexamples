@@ -1,13 +1,8 @@
-from qtpy import QtWidgets
-from qtpy.QtCore import Signal, QThread, Slot
-from pymodaq.utils import math_utils as mutils
-from pymodaq.utils.data import DataFromPlugins, DataToExport, DataRaw, Axis
+from pymodaq_utils import math_utils as mutils
+from pymodaq_data.data import DataToExport, DataRaw, Axis
+
+
 import numpy as np
-from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base
-from easydict import EasyDict as edict
-from collections import OrderedDict
-from pymodaq.utils.math_utils import gauss1D
-from pymodaq.control_modules.viewer_utility_classes import comon_parameters
 from PIL import Image
 from pathlib import Path
 from pymodaq_plugins_mockexamples.hardware.wrapper import ActuatorWrapperWithTauMultiAxes

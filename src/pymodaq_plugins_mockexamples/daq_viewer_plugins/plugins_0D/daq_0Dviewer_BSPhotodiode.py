@@ -3,14 +3,12 @@ from qtpy import QtWidgets
 import numpy as np
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, main, comon_parameters
 
-from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.data import DataFromPlugins, Axis, DataToExport
-from pymodaq.utils.parameter import Parameter
-from pymodaq.utils.parameter.utils import iter_children
 
 
-from pymodaq_plugins_mockexamples.hardware.beam_steering import BeamSteering
-from pymodaq_plugins_mockexamples.daq_viewer_plugins.plugins_2D.daq_2Dviewer_BSCamera import DAQ_2DViewer_BSCamera
+from pymodaq_plugins_mockexamples.daq_viewer_plugins.plugins_2D.daq_2Dviewer_BSCamera import (
+    DAQ_2DViewer_BSCamera)
+
 
 class DAQ_0DViewer_BSPhotodiode(DAQ_2DViewer_BSCamera):
 

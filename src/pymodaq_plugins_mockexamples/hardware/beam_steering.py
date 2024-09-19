@@ -5,7 +5,7 @@ Created the 24/10/2022
 @author: Sebastien Weber
 """
 import numpy as np
-import pymodaq.utils.math_utils as mutils
+import pymodaq_utils.math_utils as mutils
 
 from pymodaq_plugins_mockexamples.hardware.camera_wrapper import Camera
 from pymodaq_plugins_mockexamples.hardware.wrapper import ActuatorWrapperWithTauMultiAxes

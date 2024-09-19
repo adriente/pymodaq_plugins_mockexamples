@@ -9,9 +9,9 @@ import numpy as np
 
 
 # project imports
-from pymodaq.utils.h5modules.backends import Node
-from pymodaq.utils.h5modules.exporter import ExporterFactory, H5Exporter
-from pymodaq.utils.h5modules.exporters.base import H5txtExporter
+from pymodaq_data.h5modules.backends import Node
+from pymodaq_data.h5modules.exporter import ExporterFactory, H5Exporter
+from pymodaq_data.h5modules.exporters.base import H5txtExporter
 
 
 @ExporterFactory.register_exporter()

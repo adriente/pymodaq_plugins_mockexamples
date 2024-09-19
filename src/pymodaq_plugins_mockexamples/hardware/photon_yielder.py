@@ -54,10 +54,10 @@ class PhotonYielder:
 if __name__ == '__main__':
     from pathlib import Path
     from qtpy import QtCore
-    from pymodaq.utils.h5modules.saving import H5SaverLowLevel
+    from pymodaq_data.h5modules.saving import H5SaverLowLevel
     from pymodaq.utils.daq_utils import ThreadCommand
-    from pymodaq.utils.data import DataFromPlugins, Axis, DataToExport, DataRaw, DataCalculated, DataWithAxes
-    from pymodaq.utils.h5modules.data_saving import DataEnlargeableSaver, DataToExportEnlargeableSaver, DataLoader, DataSaverLoader
+    from pymodaq_data.data import  Axis, DataToExport, DataRaw, DataCalculated, DataWithAxes
+    from pymodaq_data.h5modules.data_saving import DataSaverLoader
 
     here = Path(r'C:\Users\weber\Labo\Programmes Python\PyMoDAQ_Git\pymodaq_plugins_folder\pymodaq_plugins_mockexamples\src\pymodaq_plugins_mockexamples\resources')
 

@@ -5,6 +5,7 @@ import numpy as np
 # TODO : Implement a way for the user to chose what model to load. 
 # TODO : Implement some utility function that adapts the code the expected shape from the neural network. (For example)
 
+
 class PinemAnalysis : 
     """
     Class to use the neural network and perform the data analysis in live.

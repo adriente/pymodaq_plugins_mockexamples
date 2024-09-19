@@ -2,10 +2,10 @@ import numpy as np
 from qtpy.QtWidgets import QWidget, QApplication
 from typing import List
 
-from pymodaq.utils.parameter import Parameter
+from pymodaq_gui.parameter import Parameter
 from pymodaq.extensions.bayesian.utils import BayesianModelDefault
-from pymodaq.utils import gui_utils as gutils
-from pymodaq.utils.plotting.data_viewers import Viewer1D, Viewer2D
+from pymodaq_gui import utils as gutils
+from pymodaq_gui.plotting.data_viewers import Viewer1D, Viewer2D
 from pymodaq.utils.data import DataActuator, DataToActuators, DataRaw
 
 
