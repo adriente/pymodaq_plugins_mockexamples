@@ -3,8 +3,8 @@ from qtpy import QtWidgets
 import numpy as np
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, main, comon_parameters
 
-from pymodaq.utils.plotting.utils.plot_utils import RoiInfo
-from pymodaq.utils.data import DataToExport, DataWithAxes
+from pymodaq_gui.plotting.utils.plot_utils import RoiInfo
+from pymodaq_data.data import DataToExport, DataWithAxes
 from pymodaq_plugins_mockexamples.daq_viewer_plugins.plugins_2D.daq_2Dviewer_MockCamera import DAQ_2DViewer_MockCamera
 
 

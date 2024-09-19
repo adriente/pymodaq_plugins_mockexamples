@@ -4,9 +4,6 @@ Created the 24/10/2022
 
 @author: Sebastien Weber
 """
-import numpy as np
-import pymodaq.utils.math_utils as mutils
-
 
 class MultiAxis:
     axes_indexes = [0, 1, 2]
