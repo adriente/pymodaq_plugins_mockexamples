@@ -40,3 +40,6 @@ version-file = "./src/pymodaq_plugins_mockexamples/_version.py"
 include = [
     "/src",
 ]
+artifacts = [
+    '_version.py',
+    ]
