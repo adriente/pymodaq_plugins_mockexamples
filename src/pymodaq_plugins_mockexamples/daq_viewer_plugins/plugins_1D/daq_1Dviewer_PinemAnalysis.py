@@ -11,9 +11,12 @@ from pymodaq_plugins_mockexamples.hardware.pinem_analysis import PinemAnalysis
 
 import os
 
+from pathlib import Path
+
 file_path = os.path.dirname(os.path.abspath(__file__))
 
-
+cnn_folder = Path(file_path) / 'CNNs'
+cnn_files = [str(file) for file in cnn_folder.glob('*.h5')]
 
 
 class DAQ_1DViewer_PinemAnalysis(DAQ_1DViewer_Pinem):
@@ -30,10 +33,20 @@ class DAQ_1DViewer_PinemAnalysis(DAQ_1DViewer_Pinem):
 
     """
 
+    
+    
+    params = DAQ_1DViewer_Pinem.params + [{'title': 'CNNs', 'name': 'CNNs', 'type': 'list', 'value': cnn_files[0], 'limits': cnn_files}]
+
+    def commit_settings(self, param):
+        if param.name() == 'CNNs':
+            self.pinem_model = PinemAnalysis(param.value())
+        
+        super().commit_settings(param)
+
     def ini_attributes(self):
         self.controller: PinemGenerator = None
         self.x_axis = None
-        self.pinem_model = PinemAnalysis(file_path + '/plasmon_cnn_Kalinin_div2_nobkgd.h5')
+        self.pinem_model = PinemAnalysis( cnn_files[0])
     
     def grab_data(self, Naverage=1, **kwargs):
         """Start a grab from the detector
