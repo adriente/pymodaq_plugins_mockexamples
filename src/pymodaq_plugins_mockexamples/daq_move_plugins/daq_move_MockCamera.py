@@ -17,7 +17,7 @@ class DAQ_Move_MockCamera(DAQ_Move_base):
         *params*          dictionnary
         =============== ==============
     """
-    _controller_units = 'whatever'
+    _controller_units = ''
     is_multiaxes = True
     stage_names = Camera.axes
     _epsilon = 0.01

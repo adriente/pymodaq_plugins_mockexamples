@@ -16,7 +16,7 @@ class DAQ_Move_MockComplexSignal(DAQ_Move_base):
         *params*          dictionnary
         =============== ==============
     """
-    _controller_units = 'whatever'
+    _controller_units = ''
     is_multiaxes = True
     _axis_names = dict(zip(DataSignal.axes, list(range(len(DataSignal.axes)))))
     _epsilon = 0.01

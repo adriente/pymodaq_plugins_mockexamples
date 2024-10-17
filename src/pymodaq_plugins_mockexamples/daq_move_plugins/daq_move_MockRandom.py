@@ -17,7 +17,7 @@ class DAQ_Move_MockRandom(DAQ_Move_base):
         *params*          dictionnary
         =============== ==============
     """
-    _controller_units = 'whatever'
+    _controller_units = ''
     is_multiaxes = False
     _epsilon = 0.01
 

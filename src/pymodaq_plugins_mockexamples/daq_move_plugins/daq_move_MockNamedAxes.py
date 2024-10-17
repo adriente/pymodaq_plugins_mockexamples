@@ -17,7 +17,7 @@ class DAQ_Move_MockNamedAxes(DAQ_Move_base):
         *params*          dictionnary
         =============== ==============
     """
-    _controller_units = 'whatever'
+    _controller_units = ''
     is_multiaxes = True
     _axis_names = dict(zip(['Xaxis', 'Yaxis', 'Zaxis'], MultiAxis.axes_indexes))
     _epsilon = 0.01
