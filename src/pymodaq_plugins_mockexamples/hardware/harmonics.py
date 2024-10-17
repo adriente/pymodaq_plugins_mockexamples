@@ -48,6 +48,6 @@ class Harmonics(ActuatorWrapperWithTauMultiAxes):
         spectrum = Q_(np.zeros((self._npts,)))
         for ind in range(self._n_harmonics):
             spectrum += mutils.gauss1D(axis, (ind+1) * self._omega0, self._domega_ev)
-        spectrum *= self._current_value
+        spectrum *= self._current_values[0]
         spectrum += 0.1 * np.random.random_sample((self._npts,))
         return spectrum
