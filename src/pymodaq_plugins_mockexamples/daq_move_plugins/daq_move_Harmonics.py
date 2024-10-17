@@ -20,13 +20,14 @@ class DAQ_Move_Harmonics(DAQ_Move_base):
          hardware library.
 
     """
-    _controller_units = ''
-    is_multiaxes = False
-    _axis_names = ['']
-    _epsilon = 0.1
+
+    _axis_names = Harmonics.axes
+    _controller_units = Harmonics.units
+    _epsilons = Harmonics.epsilons
+
     data_actuator_type = DataActuatorType.DataActuator
 
-    params = [] + comon_parameters_fun(is_multiaxes, axis_names=_axis_names, epsilon=_epsilon)
+    params = [] + comon_parameters_fun(axis_names=_axis_names)
 
     def ini_attributes(self):
         self.controller: Harmonics = None

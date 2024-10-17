@@ -25,11 +25,11 @@ class Harmonics(ActuatorWrapperWithTauMultiAxes):
 
     @property
     def amplitude(self) -> float:
-        return self.get_value()
+        return self.get_value('Power')
 
     @amplitude.setter
     def amplitude(self, amp: float):
-        self.move_at(amp)
+        self.move_at(amp, 'Power')
 
     @property
     def n_harmonics(self) -> int:
