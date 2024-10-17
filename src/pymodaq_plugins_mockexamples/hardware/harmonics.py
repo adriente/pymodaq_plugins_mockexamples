@@ -4,10 +4,15 @@ from pymodaq_utils import math_utils as mutils
 from pymodaq_utils.units import nm2eV, eV2nm
 
 from pymodaq_data import Q_
-from pymodaq_plugins_mock.hardware.wrapper import ActuatorWrapperWithTau
+from pymodaq_plugins_mock.hardware.wrapper import ActuatorWrapperWithTauMultiAxes
 
 
-class Harmonics(ActuatorWrapperWithTau):
+class Harmonics(ActuatorWrapperWithTauMultiAxes):
+    axes = ['Power']
+    _units = ['W']
+    units = _units
+    epsilons = [0.001]  # the precision is therefore 1 µm, 1e-4 mm and 1°
+    _tau = 0.5  # in s
 
     def __init__(self):
         super().__init__()
