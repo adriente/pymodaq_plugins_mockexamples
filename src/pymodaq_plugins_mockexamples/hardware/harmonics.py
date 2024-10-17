@@ -32,6 +32,10 @@ class Harmonics(ActuatorWrapperWithTauMultiAxes):
         self.move_at(amp, 'Power')
 
     @property
+    def power(self) -> Q_:
+        return Q_(self.amplitude, self.units[0])
+
+    @property
     def n_harmonics(self) -> int:
         return self._n_harmonics
 
